@@ -2,6 +2,9 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import { authOptions } from "@/lib/auth-config";
 import { getLectureForStudent } from "@/actions/lecture.actions";
 import { getQuizForStudent } from "@/actions/quiz.actions";
@@ -82,10 +85,13 @@ export default async function LectureViewerPage({
             <CardTitle className="text-2xl">{lecture.title}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose max-w-none">
-              <pre className="whitespace-pre-wrap font-sans text-gray-700">
+            <div className="prose prose-slate max-w-none">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+              >
                 {lecture.content}
-              </pre>
+              </ReactMarkdown>
             </div>
           </CardContent>
         </Card>

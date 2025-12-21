@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -52,7 +53,7 @@ export default function QuizTaker({
   const handleSubmit = async () => {
     // Check if all questions are answered
     if (Object.keys(answers).length !== quiz.questions.length) {
-      alert("Please answer all questions before submitting");
+      toast.error("Please answer all questions before submitting");
       return;
     }
 
@@ -74,17 +75,18 @@ export default function QuizTaker({
       });
 
       if (!result.success) {
-        alert(result.error || "Failed to submit quiz");
+        toast.error(result.error || "Failed to submit quiz");
         setIsSubmitting(false);
         return;
       }
 
+      toast.success("Quiz submitted successfully!");
       // Redirect to results page
       router.push(
         `/student/courses/${courseId}/lectures/${lectureId}/quiz-result/${result.data?.attemptId}`
       );
     } catch {
-      alert("Failed to submit quiz. Please try again.");
+      toast.error("Failed to submit quiz. Please try again.");
       setIsSubmitting(false);
     }
   };

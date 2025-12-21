@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -146,11 +149,14 @@ export default function LectureForm({
               </>
             ) : (
               <div className="min-h-125 rounded-md border bg-white p-6">
-                <div className="prose max-w-none">
+                <div className="prose prose-slate max-w-none">
                   {contentValue ? (
-                    <pre className="whitespace-pre-wrap font-sans">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                    >
                       {contentValue}
-                    </pre>
+                    </ReactMarkdown>
                   ) : (
                     <p className="text-gray-400">No content to preview</p>
                   )}

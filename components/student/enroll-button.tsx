@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { enrollInCourse } from "@/actions/enrollment.actions";
 
@@ -21,15 +22,16 @@ export default function EnrollButton({ courseId, studentId }: EnrollButtonProps)
       const result = await enrollInCourse(studentId, courseId);
 
       if (!result.success) {
-        alert(result.error || "Failed to enroll in course");
+        toast.error(result.error || "Failed to enroll in course");
         setIsEnrolling(false);
         return;
       }
 
+      toast.success("Successfully enrolled in course!");
       // Refresh the page to show enrolled state
       router.refresh();
     } catch {
-      alert("Failed to enroll in course. Please try again.");
+      toast.error("Failed to enroll in course. Please try again.");
       setIsEnrolling(false);
     }
   };

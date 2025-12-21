@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import PublishToggle from "@/components/instructor/publish-toggle";
 
 export default async function CourseDetailPage({
   params,
@@ -76,12 +77,19 @@ export default async function CourseDetailPage({
             </div>
           </div>
 
-          <Button variant="outline" asChild>
-            <Link href={`/instructor/courses/${courseId}/edit`}>
-              <Settings className="mr-2 h-4 w-4" />
-              Edit Course
-            </Link>
-          </Button>
+          <div className="flex gap-3">
+            <PublishToggle
+              courseId={courseId}
+              instructorId={session.user.id}
+              isPublished={course.isPublished}
+            />
+            <Button variant="outline" asChild>
+              <Link href={`/instructor/courses/${courseId}/edit`}>
+                <Settings className="mr-2 h-4 w-4" />
+                Edit Course
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Lectures Section */}
