@@ -149,7 +149,7 @@ export default async function QuizResultPage({
 
         {/* AI Remedial Content */}
         {wrongAnswers.length > 0 && remedialContent && (
-          <Card className="mb-8 border-orange-200 bg-orange-50">
+          <Card className="mb-8 border border-border bg-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span className="text-xl">🤖</span>
@@ -160,7 +160,7 @@ export default async function QuizResultPage({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-slate max-w-none">
+              <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:bg-muted prose-code:text-foreground prose-code:rounded prose-code:px-1 prose-code:py-0.5">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
@@ -190,10 +190,8 @@ export default async function QuizResultPage({
               return (
                 <div
                   key={index}
-                  className={`rounded-lg border p-6 ${
-                    isCorrect
-                      ? "border-green-200 bg-green-50"
-                      : "border-red-200 bg-red-50"
+                  className={`rounded-lg border p-6 bg-card ${
+                    isCorrect ? "border-emerald-500" : "border-red-500"
                   }`}
                 >
                   {/* Question Header */}
@@ -228,10 +226,10 @@ export default async function QuizResultPage({
                           key={optIndex}
                           className={`rounded border p-3 ${
                             isCorrectAnswer
-                              ? "border-green-300 bg-green-100"
+                              ? "border-emerald-500 bg-emerald-500/10"
                               : isStudentAnswer
-                              ? "border-red-300 bg-red-100"
-                              : "border bg-card"
+                              ? "border-destructive bg-destructive/10"
+                              : "border-border bg-card"
                           }`}
                         >
                           <div className="flex items-center justify-between">
