@@ -10,7 +10,7 @@ import rehypeHighlight from "rehype-highlight";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/instructor/rich-text-editor";
 import {
   Card,
   CardContent,
@@ -20,19 +20,28 @@ import {
 } from "@/components/ui/card";
 import { CreateLectureSchema } from "@/lib/validations";
 import type { CreateLectureInput } from "@/lib/validations";
-import { createLecture } from "@/actions/lecture.actions";
+import { createLecture, updateLecture } from "@/actions/lecture.actions";
 
 interface LectureFormProps {
   courseId: string;
   instructorId: string;
-  nextOrder: number;
+  nextOrder?: number;
+  lectureId?: string;
+  initialData?: {
+    title: string;
+    content: string;
+    order: number;
+  };
 }
 
 export default function LectureForm({
   courseId,
   instructorId,
-  nextOrder,
+  nextOrder = 1,
+  lectureId,
+  initialData,
 }: LectureFormProps) {
+  const isEditMode = !!lectureId && !!initialData;
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -43,14 +52,22 @@ export default function LectureForm({
     handleSubmit,
     formState: { errors },
     control,
+    setValue,
   } = useForm<CreateLectureInput>({
     resolver: zodResolver(CreateLectureSchema),
-    defaultValues: {
-      courseId,
-      title: "",
-      content: "",
-      order: nextOrder,
-    },
+    defaultValues: initialData
+      ? {
+          courseId,
+          title: initialData.title,
+          content: initialData.content,
+          order: initialData.order,
+        }
+      : {
+          courseId,
+          title: "",
+          content: "",
+          order: nextOrder,
+        },
   });
 
   const contentValue = useWatch({ control, name: "content" });
@@ -60,10 +77,12 @@ export default function LectureForm({
     setError("");
 
     try {
-      const result = await createLecture(instructorId, data);
+      const result = isEditMode
+        ? await updateLecture(lectureId!, instructorId, data)
+        : await createLecture(instructorId, data);
 
       if (!result.success) {
-        setError(result.error || "Failed to create lecture");
+        setError(result.error || `Failed to ${isEditMode ? "update" : "create"} lecture`);
         setIsLoading(false);
         return;
       }
@@ -79,9 +98,11 @@ export default function LectureForm({
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
-        <CardTitle>Add New Lecture</CardTitle>
+        <CardTitle>{isEditMode ? "Edit Lecture" : "Add New Lecture"}</CardTitle>
         <CardDescription>
-          Create lecture content using markdown formatting
+          {isEditMode
+            ? "Update the lecture content below"
+            : "Create lecture content using markdown formatting"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -124,28 +145,13 @@ export default function LectureForm({
 
             {!showPreview ? (
               <>
-                <Textarea
-                  id="content"
-                  placeholder="Write your lecture content using markdown...
-
-# Heading
-## Subheading
-- Bullet point
-**Bold text**
-*Italic text*
-`code`"
-                  rows={20}
-                  {...register("content")}
-                  disabled={isLoading}
-                  className="font-mono text-sm"
+                <RichTextEditor
+                  value={contentValue || ""}
+                  onChange={(markdown) => setValue("content", markdown, { shouldValidate: true })}
                 />
                 {errors.content && (
                   <p className="text-sm text-red-500">{errors.content.message}</p>
                 )}
-                <p className="text-sm text-gray-500">
-                  Tip: Use markdown syntax for formatting. The preview will show how
-                  it will appear to students.
-                </p>
               </>
             ) : (
               <div className="min-h-125 rounded-md border bg-white p-6">
@@ -184,7 +190,13 @@ export default function LectureForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? "Creating..." : "Create Lecture"}
+              {isLoading
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                ? "Update Lecture"
+                : "Create Lecture"}
             </Button>
           </div>
         </form>

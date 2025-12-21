@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Plus, Settings } from "lucide-react";
+import { ChevronLeft, Plus, Settings, Pencil } from "lucide-react";
 import { authOptions } from "@/lib/auth-config";
 import { getCourseById } from "@/actions/course.actions";
 import { Button } from "@/components/ui/button";
@@ -114,32 +114,43 @@ export default async function CourseDetailPage({
             {lectures.length > 0 ? (
               <div className="space-y-3">
                 {lectures.map((lecture) => (
-                  <Link
+                  <div
                     key={lecture._id}
-                    href={`/instructor/courses/${courseId}/lectures/${lecture._id}/quiz`}
-                    className="block"
+                    className="flex items-center justify-between rounded-lg border bg-white p-4"
                   >
-                    <div className="flex items-center justify-between rounded-lg border bg-white p-4 transition-colors hover:bg-gray-50">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600">
-                          {lecture.order}
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-gray-900">
-                            {lecture.title}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Added{" "}
-                            {new Date(lecture.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600">
+                        {lecture.order}
                       </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          {lecture.title}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Added{" "}
+                          {new Date(lecture.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
 
-                      <Button variant="ghost" size="sm">
-                        View →
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={`/instructor/courses/${courseId}/lectures/${lecture._id}/edit`}
+                        >
+                          <Pencil className="mr-1 h-4 w-4" />
+                          Edit
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link
+                          href={`/instructor/courses/${courseId}/lectures/${lecture._id}/quiz`}
+                        >
+                          Quiz →
+                        </Link>
                       </Button>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             ) : (

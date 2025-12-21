@@ -24,10 +24,16 @@ import {
 } from "@/components/ui/select";
 import { CreateCourseSchema } from "@/lib/validations";
 import type { CreateCourseInput } from "@/lib/validations";
-import { createCourse } from "@/actions/course.actions";
+import { createCourse, updateCourse } from "@/actions/course.actions";
 
 interface CourseFormProps {
   instructorId: string;
+  courseId?: string;
+  initialData?: {
+    title: string;
+    description: string;
+    category: CreateCourseInput["category"];
+  };
 }
 
 const CATEGORIES = [
@@ -39,10 +45,11 @@ const CATEGORIES = [
   { value: "other", label: "Other" },
 ];
 
-export default function CourseForm({ instructorId }: CourseFormProps) {
+export default function CourseForm({ instructorId, courseId, initialData }: CourseFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const isEditMode = !!courseId && !!initialData;
 
   const {
     register,
@@ -52,7 +59,7 @@ export default function CourseForm({ instructorId }: CourseFormProps) {
     control,
   } = useForm<CreateCourseInput>({
     resolver: zodResolver(CreateCourseSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       title: "",
       description: "",
       category: "programming",
@@ -66,16 +73,19 @@ export default function CourseForm({ instructorId }: CourseFormProps) {
     setError("");
 
     try {
-      const result = await createCourse(instructorId, data);
+      const result = isEditMode
+        ? await updateCourse(courseId!, instructorId, data)
+        : await createCourse(instructorId, data);
 
       if (!result.success) {
-        setError(result.error || "Failed to create course");
+        setError(result.error || `Failed to ${isEditMode ? "update" : "create"} course`);
         setIsLoading(false);
         return;
       }
 
       // Redirect to course detail page
-      router.push(`/instructor/courses/${result.data?.courseId}`);
+      const targetCourseId = isEditMode ? courseId : result.data?.courseId;
+      router.push(`/instructor/courses/${targetCourseId}`);
     } catch {
       setError("Something went wrong. Please try again.");
       setIsLoading(false);
@@ -85,9 +95,11 @@ export default function CourseForm({ instructorId }: CourseFormProps) {
   return (
     <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>Create New Course</CardTitle>
+        <CardTitle>{isEditMode ? "Edit Course" : "Create New Course"}</CardTitle>
         <CardDescription>
-          Fill in the details below to create a new course
+          {isEditMode
+            ? "Update the course details below"
+            : "Fill in the details below to create a new course"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -175,7 +187,13 @@ export default function CourseForm({ instructorId }: CourseFormProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? "Creating..." : "Create Course"}
+              {isLoading
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                ? "Update Course"
+                : "Create Course"}
             </Button>
           </div>
         </form>

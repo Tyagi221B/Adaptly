@@ -17,8 +17,8 @@ export async function proxy(request: NextRequest) {
     pathname === "/" ||
     pathname.startsWith("/api/auth");
 
-  // If user is logged in and trying to access auth pages, redirect to dashboard
-  if (token && (pathname === "/login" || pathname === "/signup")) {
+  // If user is logged in and trying to access auth pages or home, redirect to dashboard
+  if (token && (pathname === "/login" || pathname === "/signup" || pathname === "/")) {
     if (token.role === "instructor") {
       return NextResponse.redirect(new URL("/instructor/dashboard", request.url));
     }
