@@ -24,10 +24,8 @@ export default async function InstructorLayout({
 
   return (
     <SidebarProvider>
-      <div
-        style={{ ["--navbar-height" as string]: "4rem" }}
-        className="flex min-h-screen flex-col"
-      >
+      <InstructorSidebar />
+      <SidebarInset>
         {/* Top navbar */}
         <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b bg-background px-4">
           <div className="flex items-center gap-2">
@@ -60,13 +58,8 @@ export default async function InstructorLayout({
             </form>
           </div>
         </header>
-
-        {/* Sidebar + content row */}
-        <div className="flex flex-1">
-          <InstructorSidebar />
-          <SidebarInset>{children}</SidebarInset>
-        </div>
-      </div>
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }
