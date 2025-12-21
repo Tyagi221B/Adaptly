@@ -45,7 +45,7 @@ export default async function StudentDashboard() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8">
+    <main className="w-full px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">
           Welcome back, {session.user.name}!

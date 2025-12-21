@@ -3,6 +3,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import MarkdownIt from "markdown-it";
+import type { Options } from "markdown-it/lib/index.mjs";
+import type { RenderRule } from "markdown-it/lib/renderer.mjs";
+import type Token from "markdown-it/lib/token.mjs";
+import { common, createLowlight } from "lowlight";
+import type { Root, Element, Text } from "hast";
 import { authOptions } from "@/lib/auth-config";
 import { getLectureForStudent } from "@/actions/lecture.actions";
 import { getQuizForStudent } from "@/actions/quiz.actions";
@@ -18,20 +23,47 @@ import {
 } from "@/components/ui/card";
 import QuizTaker from "@/components/student/quiz-taker";
 
-const md = new MarkdownIt({
+const lowlight = createLowlight(common);
+
+function processNode(node: Element | Text): string {
+  if (node.type === "element") {
+    const element = node as Element;
+    const classes = (element.properties?.className as string[]) || [];
+    const childrenHtml = element.children.map((child) => processNode(child as Element | Text)).join("");
+    return `<span class="${classes.join(" ")}">${childrenHtml}</span>`;
+  }
+  return (node as Text).value || "";
+}
+
+const md: MarkdownIt = new MarkdownIt({
   html: false,
   linkify: true,
   breaks: false,
+  highlight: function (str: string, lang: string): string {
+    if (lang && lowlight.registered(lang)) {
+      try {
+        const result: Root = lowlight.highlight(lang, str);
+        return (
+          '<pre class="hljs"><code>' +
+          result.children.map((node) => processNode(node as Element | Text)).join("") +
+          "</code></pre>"
+        );
+      } catch (err) {
+        console.error("Syntax highlighting error:", err);
+      }
+    }
+    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + "</code></pre>";
+  },
 });
 
 // Ensure lecture links open in a new tab for students
-const defaultLinkOpen =
+const defaultLinkOpen: RenderRule =
   md.renderer.rules.link_open ||
-  function (tokens, idx, options, _env, self) {
+  function (tokens: Token[], idx: number, options: Options, _env: unknown, self): string {
     return self.renderToken(tokens, idx, options);
   };
 
-md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+md.renderer.rules.link_open = (tokens: Token[], idx: number, options: Options, env: unknown, self): string => {
   const token = tokens[idx];
 
   const setAttr = (name: string, value: string) => {

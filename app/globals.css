@@ -354,3 +354,146 @@
 .dark .prose ol {
   color: oklch(0.98 0 0);
 }
+
+/* Student Lecture Viewer Styles */
+.student-lecture-readonly {
+  color: oklch(0.145 0 0);
+}
+
+.student-lecture-readonly h1,
+.student-lecture-readonly h2,
+.student-lecture-readonly h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.student-lecture-readonly h1 {
+  font-size: 2em;
+}
+
+.student-lecture-readonly h2 {
+  font-size: 1.5em;
+}
+
+.student-lecture-readonly h3 {
+  font-size: 1.25em;
+}
+
+.student-lecture-readonly p {
+  margin: 0.75rem 0;
+}
+
+.student-lecture-readonly pre {
+  background: #0d1117;
+  border-radius: 0.5rem;
+  color: #c9d1d9;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid #30363d;
+}
+
+.student-lecture-readonly pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.875rem;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.student-lecture-readonly code {
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  box-decoration-break: clone;
+  color: #dc2626;
+  font-size: 0.875em;
+  padding: 0.125rem 0.375rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+.student-lecture-readonly blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: #4b5563;
+  background: #f9fafb;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+}
+
+.student-lecture-readonly hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+.student-lecture-readonly ul,
+.student-lecture-readonly ol {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.student-lecture-readonly ul li,
+.student-lecture-readonly ol li {
+  margin: 0.25rem 0;
+}
+
+.student-lecture-readonly a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.student-lecture-readonly a:hover {
+  color: #ea580c;
+}
+
+/* Dark mode Student Lecture Viewer Styles */
+.dark .student-lecture-readonly {
+  color: oklch(0.98 0 0);
+}
+
+.dark .student-lecture-readonly h1,
+.dark .student-lecture-readonly h2,
+.dark .student-lecture-readonly h3 {
+  color: oklch(0.98 0 0);
+}
+
+.dark .student-lecture-readonly pre {
+  background: oklch(0.08 0 0);
+  color: oklch(0.90 0 0);
+  border: 1px solid oklch(0.25 0 0);
+}
+
+.dark .student-lecture-readonly pre code {
+  color: inherit;
+}
+
+.dark .student-lecture-readonly code {
+  background-color: oklch(0.20 0 0);
+  color: oklch(0.75 0.14 50);
+}
+
+.dark .student-lecture-readonly blockquote {
+  border-left: 4px solid oklch(0.75 0.14 50);
+  color: oklch(0.75 0 0);
+  background: oklch(0.15 0 0);
+}
+
+.dark .student-lecture-readonly hr {
+  border-top: 2px solid oklch(0.30 0 0);
+}
+
+.dark .student-lecture-readonly a {
+  color: inherit;
+}
+
+.dark .student-lecture-readonly a:hover {
+  color: oklch(0.75 0.14 50);
+}
