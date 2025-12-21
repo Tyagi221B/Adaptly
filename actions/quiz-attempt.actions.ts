@@ -3,7 +3,6 @@
 import dbConnect from "@/lib/mongodb";
 import QuizAttempt from "@/database/quiz-attempt.model";
 import Quiz from "@/database/quiz.model";
-import Lecture from "@/database/lecture.model";
 import { Types } from "mongoose";
 import type { IStudentAnswer } from "@/database/quiz-attempt.model";
 

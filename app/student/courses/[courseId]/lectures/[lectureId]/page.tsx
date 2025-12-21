@@ -8,7 +8,7 @@ import rehypeHighlight from "rehype-highlight";
 import { authOptions } from "@/lib/auth-config";
 import { getLectureForStudent } from "@/actions/lecture.actions";
 import { getQuizForStudent } from "@/actions/quiz.actions";
-import { isEnrolled, markLectureComplete } from "@/actions/enrollment.actions";
+import { isEnrolled } from "@/actions/enrollment.actions";
 import { getLatestQuizAttempt } from "@/actions/quiz-attempt.actions";
 import { Button } from "@/components/ui/button";
 import {

@@ -2,6 +2,9 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, CheckCircle2, XCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import { authOptions } from "@/lib/auth-config";
 import { getQuizAttemptById } from "@/actions/quiz-attempt.actions";
 import { markLectureComplete } from "@/actions/enrollment.actions";
@@ -153,14 +156,17 @@ export default async function QuizResultPage({
                 Personalized Learning Guide
               </CardTitle>
               <CardDescription>
-                Based on your answers, here's what we recommend focusing on
+                Based on your answers, here&apos;s what we recommend focusing on
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="prose max-w-none">
-                <div className="whitespace-pre-wrap text-gray-700">
+              <div className="prose prose-slate max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                >
                   {remedialContent}
-                </div>
+                </ReactMarkdown>
               </div>
             </CardContent>
           </Card>
