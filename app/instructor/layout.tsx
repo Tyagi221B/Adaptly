@@ -8,6 +8,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { AppLogo } from "@/components/navigation/logo";
 import { signOut } from "next-auth/react";
 
 export default async function InstructorLayout({
@@ -23,13 +24,19 @@ export default async function InstructorLayout({
 
   return (
     <SidebarProvider>
-      <InstructorSidebar />
-      <SidebarInset>
+      <div
+        style={{ ["--navbar-height" as string]: "4rem" }}
+        className="flex min-h-screen flex-col"
+      >
+        {/* Top navbar */}
         <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b bg-background px-4">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <Link href="/" className="text-xl font-bold">
+            {/* Desktop logo */}
+            <AppLogo className="hidden md:flex" />
+            {/* Mobile logo */}
+            <Link href="/" className="text-xl font-bold md:hidden">
               Adaptly
             </Link>
           </div>
@@ -40,10 +47,12 @@ export default async function InstructorLayout({
               <p className="text-sm font-medium">{session.user.name}</p>
               <p className="text-xs text-muted-foreground capitalize">{session.user.role}</p>
             </div>
-            <form action={async () => {
-              "use server";
-              await signOut({ callbackUrl: "/",});
-            }}>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ callbackUrl: "/" });
+              }}
+            >
               <Button variant="outline" size="sm" type="submit">
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
@@ -51,8 +60,13 @@ export default async function InstructorLayout({
             </form>
           </div>
         </header>
-        {children}
-      </SidebarInset>
+
+        {/* Sidebar + content row */}
+        <div className="flex flex-1">
+          <InstructorSidebar />
+          <SidebarInset>{children}</SidebarInset>
+        </div>
+      </div>
     </SidebarProvider>
   );
 }
