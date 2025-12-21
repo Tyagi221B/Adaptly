@@ -165,8 +165,8 @@ export default function QuizGenerator({
       ) : (
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Quiz Questions</h2>
-            <p className="text-gray-600">
+            <h2 className="text-2xl font-bold text-foreground">Quiz Questions</h2>
+            <p className="text-muted-foreground">
               Edit questions or generate new ones with AI
             </p>
           </div>
@@ -217,7 +217,7 @@ export default function QuizGenerator({
                 onChange={(e) => setPassingScore(Number(e.target.value))}
                 className="w-32"
               />
-              <span className="text-sm text-gray-600">%</span>
+              <span className="text-sm text-muted-foreground">%</span>
             </div>
           </CardContent>
         </Card>

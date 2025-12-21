@@ -44,21 +44,21 @@ const LinkForm: React.FC<LinkFormProps> = ({
   };
 
   return (
-    <div className="w-72 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
-      <p className="mb-2 text-sm font-medium text-gray-800">Insert link</p>
+    <div className="w-72 rounded-lg border bg-card p-3 shadow-lg">
+      <p className="mb-2 text-sm font-medium text-foreground">Insert link</p>
       <form onSubmit={handleSubmit} className="space-y-2">
         <Input
           autoFocus
           type="text"
           placeholder="Link text (e.g. Asmit Tyagi)"
-          className="text-gray-900 placeholder:text-gray-400"
+          className="text-foreground placeholder:text-muted-foreground"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
         />
         <Input
           type="url"
           placeholder="https://example.com"
-          className="text-gray-900 placeholder:text-gray-400"
+          className="text-foreground placeholder:text-muted-foreground"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
@@ -352,7 +352,7 @@ export const SlashCommandsList = forwardRef<
   }));
 
   return (
-    <div className="z-50 max-h-100 w-72 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl">
+    <div className="z-50 max-h-100 w-72 overflow-y-auto rounded-lg border bg-card shadow-xl">
       <div className="px-2 py-2">
         {props.items.length ? (
           props.items.map((item, index) => {
@@ -364,20 +364,20 @@ export const SlashCommandsList = forwardRef<
                 className={`flex w-full items-start gap-3 rounded-md px-3 py-2 text-left transition-colors ${
                   index === selectedIndex
                     ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-50"
+                    : "text-foreground hover:bg-background"
                 }`}
                 onClick={() => selectItem(index)}
               >
                 <Icon className="mt-0.5 h-5 w-5 shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium">{item.title}</p>
-                  <p className="text-xs text-gray-500">{item.description}</p>
+                  <p className="text-xs text-muted-foreground">{item.description}</p>
                 </div>
               </button>
             );
           })
         ) : (
-          <div className="px-3 py-2 text-sm text-gray-500">No results</div>
+          <div className="px-3 py-2 text-sm text-muted-foreground">No results</div>
         )}
       </div>
     </div>

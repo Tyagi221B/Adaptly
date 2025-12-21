@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BookOpen, TrendingUp, Award } from "lucide-react";
 import { authOptions } from "@/lib/auth-config";
-import DashboardHeader from "@/components/dashboard/dashboard-header";
 import { getMyEnrollments } from "@/actions/enrollment.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,22 +41,19 @@ export default async function StudentDashboard() {
     business: "bg-green-100 text-green-800",
     marketing: "bg-orange-100 text-orange-800",
     "data-science": "bg-pink-100 text-pink-800",
-    other: "bg-gray-100 text-gray-800",
+    other: "bg-muted text-foreground",
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader user={session.user} />
-
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {session.user.name}!
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Ready to continue your learning journey?
-          </p>
-        </div>
+    <main className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">
+          Welcome back, {session.user.name}!
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Ready to continue your learning journey?
+        </p>
+      </div>
 
         {/* Stats */}
         <div className="mb-8 grid gap-6 md:grid-cols-4">
@@ -66,7 +62,7 @@ export default async function StudentDashboard() {
               <CardTitle className="text-sm font-medium">
                 Enrolled Courses
               </CardTitle>
-              <BookOpen className="h-4 w-4 text-gray-600" />
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalEnrollments}</div>
@@ -78,7 +74,7 @@ export default async function StudentDashboard() {
               <CardTitle className="text-sm font-medium">
                 Lectures Completed
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-gray-600" />
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -92,7 +88,7 @@ export default async function StudentDashboard() {
               <CardTitle className="text-sm font-medium">
                 Courses Completed
               </CardTitle>
-              <Award className="h-4 w-4 text-gray-600" />
+              <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{completedCourses}</div>
@@ -118,7 +114,7 @@ export default async function StudentDashboard() {
 
         {/* Enrolled Courses */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">My Courses</h2>
+          <h2 className="text-2xl font-bold text-foreground">My Courses</h2>
           <Button asChild>
             <Link href="/student/courses">Browse Courses</Link>
           </Button>
@@ -156,13 +152,13 @@ export default async function StudentDashboard() {
                     {/* Progress Bar */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Progress</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium text-foreground">
                           {enrollment.progressPercentage}%
                         </span>
                       </div>
                       <Progress value={enrollment.progressPercentage} />
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {enrollment.completedLectures} of{" "}
                         {enrollment.totalLectures} lectures completed
                       </p>
@@ -184,11 +180,11 @@ export default async function StudentDashboard() {
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
-              <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <h3 className="mb-2 text-lg font-semibold text-foreground">
                 No courses yet
               </h3>
-              <p className="mb-4 text-gray-600">
+              <p className="mb-4 text-muted-foreground">
                 Start your learning journey by enrolling in a course
               </p>
               <Button asChild>
@@ -197,7 +193,6 @@ export default async function StudentDashboard() {
             </CardContent>
           </Card>
         )}
-      </main>
-    </div>
+    </main>
   );
 }

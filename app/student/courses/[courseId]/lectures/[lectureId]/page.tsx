@@ -95,7 +95,7 @@ export default async function LectureViewerPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
@@ -108,7 +108,7 @@ export default async function LectureViewerPage({
         {/* Lecture Content */}
         <Card className="mb-8">
           <CardHeader>
-            <div className="mb-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
+            <div className="mb-2 inline-block rounded-full bg-muted px-3 py-1 text-sm font-medium text-muted-foreground">
               Lecture {lecture.order}
             </div>
             <CardTitle className="text-2xl">{lecture.title}</CardTitle>
@@ -133,9 +133,9 @@ export default async function LectureViewerPage({
             <CardContent>
               {latestAttempt ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg bg-gray-50 p-4">
+                  <div className="rounded-lg bg-muted p-4">
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-foreground">
                         Your latest attempt:
                       </span>
                       <span
@@ -148,7 +148,7 @@ export default async function LectureViewerPage({
                         {latestAttempt.score}%
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Status:{" "}
                       {latestAttempt.passed ? (
                         <span className="text-green-600">Passed ✓</span>
@@ -191,7 +191,7 @@ export default async function LectureViewerPage({
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 No quiz available for this lecture
               </p>
             </CardContent>

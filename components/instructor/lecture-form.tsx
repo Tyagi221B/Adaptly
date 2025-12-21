@@ -154,7 +154,7 @@ export default function LectureForm({
                 )}
               </>
             ) : (
-              <div className="min-h-125 rounded-md border bg-white p-6">
+              <div className="min-h-125 rounded-md border bg-card p-6">
                 <div className="prose prose-slate max-w-none">
                   {contentValue ? (
                     <ReactMarkdown
@@ -164,7 +164,7 @@ export default function LectureForm({
                       {contentValue}
                     </ReactMarkdown>
                   ) : (
-                    <p className="text-gray-400">No content to preview</p>
+                    <p className="text-muted-foreground">No content to preview</p>
                   )}
                 </div>
               </div>

@@ -107,15 +107,15 @@ export default function QuizTaker({
       {quiz.questions.map((question, questionIndex) => (
         <div
           key={questionIndex}
-          className="rounded-lg border bg-white p-6 shadow-sm"
+          className="rounded-lg border bg-card p-6 shadow-sm"
         >
           <div className="mb-4">
-            <span className="inline-block rounded bg-gray-100 px-2 py-1 text-sm font-medium text-gray-600">
+            <span className="inline-block rounded bg-muted px-2 py-1 text-sm font-medium text-muted-foreground">
               Question {questionIndex + 1}
             </span>
           </div>
 
-          <h3 className="mb-4 text-lg font-medium text-gray-900">
+          <h3 className="mb-4 text-lg font-medium text-foreground">
             {question.questionText}
           </h3>
 
@@ -129,7 +129,7 @@ export default function QuizTaker({
               {question.options.map((option, optionIndex) => (
                 <div
                   key={optionIndex}
-                  className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-gray-50"
+                  className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-background"
                 >
                   <RadioGroupItem
                     value={optionIndex.toString()}
@@ -149,9 +149,9 @@ export default function QuizTaker({
       ))}
 
       {/* Submit Button */}
-      <div className="sticky bottom-4 rounded-lg border bg-white p-4 shadow-lg">
+      <div className="sticky bottom-4 rounded-lg border bg-card p-4 shadow-lg">
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {Object.keys(answers).length} of {quiz.questions.length} questions
             answered
           </div>

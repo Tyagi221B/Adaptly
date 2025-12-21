@@ -73,7 +73,7 @@ export default function CourseCard({ course }: CourseCardProps) {
     business: "bg-green-100 text-green-800",
     marketing: "bg-orange-100 text-orange-800",
     "data-science": "bg-pink-100 text-pink-800",
-    other: "bg-gray-100 text-gray-800",
+    other: "bg-muted text-foreground",
   };
 
   return (

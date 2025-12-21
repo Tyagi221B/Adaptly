@@ -80,7 +80,7 @@ export default async function QuizResultPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
@@ -99,10 +99,10 @@ export default async function QuizResultPage({
           <CardContent>
             <div className="space-y-4">
               {/* Score Display */}
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 p-6">
+              <div className="flex items-center justify-between rounded-lg bg-background p-6">
                 <div>
-                  <p className="mb-1 text-sm text-gray-600">Your Score</p>
-                  <p className="text-4xl font-bold text-gray-900">
+                  <p className="mb-1 text-sm text-muted-foreground">Your Score</p>
+                  <p className="text-4xl font-bold text-foreground">
                     {attempt.score}%
                   </p>
                 </div>
@@ -116,7 +116,7 @@ export default async function QuizResultPage({
                       Not Passed
                     </Badge>
                   )}
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Passing score: {attempt.quiz.passingScore}%
                   </p>
                 </div>
@@ -124,23 +124,23 @@ export default async function QuizResultPage({
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="rounded-lg border bg-white p-4 text-center">
-                  <p className="text-2xl font-bold text-gray-900">
+                <div className="rounded-lg border bg-card p-4 text-center">
+                  <p className="text-2xl font-bold text-foreground">
                     {attempt.quiz.questions.length}
                   </p>
-                  <p className="text-sm text-gray-600">Total Questions</p>
+                  <p className="text-sm text-muted-foreground">Total Questions</p>
                 </div>
-                <div className="rounded-lg border bg-white p-4 text-center">
+                <div className="rounded-lg border bg-card p-4 text-center">
                   <p className="text-2xl font-bold text-green-600">
                     {attempt.answers.filter((a) => a.isCorrect).length}
                   </p>
-                  <p className="text-sm text-gray-600">Correct</p>
+                  <p className="text-sm text-muted-foreground">Correct</p>
                 </div>
-                <div className="rounded-lg border bg-white p-4 text-center">
+                <div className="rounded-lg border bg-card p-4 text-center">
                   <p className="text-2xl font-bold text-red-600">
                     {attempt.answers.filter((a) => !a.isCorrect).length}
                   </p>
-                  <p className="text-sm text-gray-600">Incorrect</p>
+                  <p className="text-sm text-muted-foreground">Incorrect</p>
                 </div>
               </div>
             </div>
@@ -205,10 +205,10 @@ export default async function QuizResultPage({
                         <XCircle className="mt-1 h-6 w-6 text-red-600" />
                       )}
                       <div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           Question {index + 1}
                         </p>
-                        <h3 className="text-lg font-medium text-gray-900">
+                        <h3 className="text-lg font-medium text-foreground">
                           {question.questionText}
                         </h3>
                       </div>
@@ -231,11 +231,11 @@ export default async function QuizResultPage({
                               ? "border-green-300 bg-green-100"
                               : isStudentAnswer
                               ? "border-red-300 bg-red-100"
-                              : "border-gray-200 bg-white"
+                              : "border bg-card"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-900">{option}</span>
+                            <span className="text-foreground">{option}</span>
                             {isCorrectAnswer && (
                               <Badge className="bg-green-600">Correct</Badge>
                             )}
@@ -250,11 +250,11 @@ export default async function QuizResultPage({
 
                   {/* Explanation */}
                   {question.explanation && (
-                    <div className="ml-9 mt-4 rounded-lg bg-white p-4">
-                      <p className="mb-1 text-sm font-medium text-gray-700">
+                    <div className="ml-9 mt-4 rounded-lg bg-card p-4">
+                      <p className="mb-1 text-sm font-medium text-foreground">
                         Explanation:
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         {question.explanation}
                       </p>
                     </div>

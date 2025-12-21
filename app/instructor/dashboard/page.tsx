@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { authOptions } from "@/lib/auth-config";
-import DashboardHeader from "@/components/dashboard/dashboard-header";
 import CourseCard from "@/components/instructor/course-card";
 import { Button } from "@/components/ui/button";
 import { getMyCourses } from "@/actions/course.actions";
@@ -20,31 +19,28 @@ export default async function InstructorDashboard() {
   const courses = coursesResult.success ? coursesResult.data : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader user={session.user} />
-
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome, {session.user.name}!
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Manage your courses and track student progress
-            </p>
-          </div>
-
-          <Button asChild size="lg">
-            <Link href="/instructor/courses/new">
-              <Plus className="mr-2 h-5 w-5" />
-              Create Course
-            </Link>
-          </Button>
+    <main className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Welcome, {session.user.name}!
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Manage your courses and track student progress
+          </p>
         </div>
+
+        <Button asChild size="lg">
+          <Link href="/instructor/courses/new">
+            <Plus className="mr-2 h-5 w-5" />
+            Create Course
+          </Link>
+        </Button>
+      </div>
 
         {/* Courses Section */}
         <div className="mb-8">
-          <h2 className="mb-4 text-2xl font-semibold text-gray-900">
+          <h2 className="mb-4 text-2xl font-semibold text-foreground">
             My Courses
           </h2>
 
@@ -55,11 +51,11 @@ export default async function InstructorDashboard() {
               ))}
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed bg-white p-12 text-center">
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            <div className="rounded-lg border border-dashed bg-card p-12 text-center">
+              <h3 className="mb-2 text-lg font-semibold text-foreground">
                 No courses yet
               </h3>
-              <p className="mb-4 text-gray-600">
+              <p className="mb-4 text-muted-foreground">
                 Get started by creating your first course
               </p>
               <Button asChild>
@@ -75,33 +71,32 @@ export default async function InstructorDashboard() {
         {/* Quick Stats */}
         {courses && courses.length > 0 && (
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-lg border bg-white p-6 shadow-sm">
-              <h3 className="mb-2 text-sm font-medium text-gray-600">
+            <div className="rounded-lg border bg-card p-6 shadow-sm">
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">
                 Total Courses
               </h3>
-              <p className="text-3xl font-bold text-gray-900">{courses.length}</p>
+              <p className="text-3xl font-bold text-foreground">{courses.length}</p>
             </div>
 
-            <div className="rounded-lg border bg-white p-6 shadow-sm">
-              <h3 className="mb-2 text-sm font-medium text-gray-600">
+            <div className="rounded-lg border bg-card p-6 shadow-sm">
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">
                 Total Lectures
               </h3>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-3xl font-bold text-foreground">
                 {courses.reduce((acc, course) => acc + course.lectureCount, 0)}
               </p>
             </div>
 
-            <div className="rounded-lg border bg-white p-6 shadow-sm">
-              <h3 className="mb-2 text-sm font-medium text-gray-600">
+            <div className="rounded-lg border bg-card p-6 shadow-sm">
+              <h3 className="mb-2 text-sm font-medium text-muted-foreground">
                 Published Courses
               </h3>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-3xl font-bold text-foreground">
                 {courses.filter((course) => course.isPublished).length}
               </p>
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </main>
   );
 }

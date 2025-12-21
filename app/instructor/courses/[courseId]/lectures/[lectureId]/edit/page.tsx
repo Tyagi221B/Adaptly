@@ -30,7 +30,7 @@ export default async function EditLecturePage({
   const lecture = result.data;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">

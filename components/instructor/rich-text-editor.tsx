@@ -162,7 +162,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     editorProps: {
       attributes: {
         class:
-          "prose prose-slate max-w-none focus:outline-none min-h-[400px] p-6 border rounded-lg bg-white transition-all focus-within:border-blue-500 focus-within:shadow-sm",
+          "prose prose-slate max-w-none focus:outline-none min-h-[400px] p-6 border rounded-lg bg-card text-foreground transition-all focus-within:border-primary focus-within:shadow-sm",
       },
     },
     onUpdate: ({ editor }) => {
@@ -189,7 +189,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   return (
     <div className="space-y-3">
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 rounded-lg border border-gray-200 bg-white p-2 shadow-sm">
+      <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-2 shadow-sm">
         {/* Headings */}
         <Button
           type="button"
@@ -219,7 +219,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <Heading3 className="h-4 w-4" />
         </Button>
 
-        <div className="mx-1 h-6 w-px bg-gray-200" />
+        <div className="mx-1 h-6 w-px bg-border" />
 
         {/* Text formatting */}
         <Button
@@ -253,7 +253,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <Code className="h-4 w-4" />
         </Button>
 
-        <div className="mx-1 h-6 w-px bg-gray-200" />
+        <div className="mx-1 h-6 w-px bg-border" />
 
         {/* Lists */}
         <Button
@@ -275,7 +275,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <ListOrdered className="h-4 w-4" />
         </Button>
 
-        <div className="mx-1 h-6 w-px bg-gray-200" />
+        <div className="mx-1 h-6 w-px bg-border" />
 
         {/* Other */}
         <Button
@@ -310,7 +310,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <Minus className="h-4 w-4" />
         </Button>
 
-        <div className="mx-1 h-6 w-px bg-gray-200" />
+        <div className="mx-1 h-6 w-px bg-border" />
 
         {/* Undo/Redo */}
         <Button
@@ -343,13 +343,13 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       </div>
 
       {/* Helper text */}
-      <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
         <p>
           💡 <span className="font-medium">Markdown shortcuts:</span> Type{" "}
-          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">#</kbd> + space for heading,{" "}
-          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">-</kbd> or{" "}
-          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">1.</kbd> + space for lists,{" "}
-          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs">**text**</kbd> for bold
+          <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">#</kbd> + space for heading,{" "}
+          <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">-</kbd> or{" "}
+          <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">1.</kbd> + space for lists,{" "}
+          <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">**text**</kbd> for bold
         </p>
       </div>
     </div>

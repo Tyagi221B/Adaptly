@@ -33,7 +33,7 @@ export default async function QuizPage({
   const existingQuiz = quizResult.success && quizResult.data ? quizResult.data : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
@@ -45,10 +45,10 @@ export default async function QuizPage({
 
         {/* Lecture Info */}
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">
+          <h1 className="mb-2 text-3xl font-bold text-foreground">
             {lectureResult.data.title}
           </h1>
-          <p className="text-gray-600">Generate and manage quiz questions</p>
+          <p className="text-muted-foreground">Generate and manage quiz questions</p>
         </div>
 
         {/* Quiz Generator Component */}

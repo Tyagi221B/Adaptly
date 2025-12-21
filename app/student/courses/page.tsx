@@ -32,7 +32,7 @@ export default async function CourseCatalogPage() {
     business: "bg-green-100 text-green-800",
     marketing: "bg-orange-100 text-orange-800",
     "data-science": "bg-pink-100 text-pink-800",
-    other: "bg-gray-100 text-gray-800",
+    other: "bg-muted text-foreground",
   };
 
   // Check enrollment status for each course
@@ -47,17 +47,16 @@ export default async function CourseCatalogPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">
-            Course Catalog
-          </h1>
-          <p className="text-gray-600">
-            Browse and enroll in courses to start learning
-          </p>
-        </div>
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="mb-2 text-3xl font-bold text-foreground">
+          Course Catalog
+        </h1>
+        <p className="text-muted-foreground">
+          Browse and enroll in courses to start learning
+        </p>
+      </div>
 
         {/* Courses Grid */}
         {courses && courses.length > 0 ? (
@@ -87,13 +86,13 @@ export default async function CourseCatalogPage() {
                     </Badge>
 
                     {/* Instructor */}
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
                       <span>{course.instructorName}</span>
                     </div>
 
                     {/* Lecture Count */}
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <BookOpen className="h-4 w-4" />
                       <span>
                         {course.lectureCount}{" "}
@@ -124,16 +123,15 @@ export default async function CourseCatalogPage() {
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              <h3 className="mb-2 text-lg font-semibold text-foreground">
                 No courses available
               </h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Check back later for new courses
               </p>
             </CardContent>
           </Card>
         )}
-      </div>
     </div>
   );
 }

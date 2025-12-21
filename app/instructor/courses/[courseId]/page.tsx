@@ -41,11 +41,11 @@ export default async function CourseDetailPage({
     business: "bg-green-100 text-green-800",
     marketing: "bg-orange-100 text-orange-800",
     "data-science": "bg-pink-100 text-pink-800",
-    other: "bg-gray-100 text-gray-800",
+    other: "bg-muted text-foreground",
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
@@ -58,10 +58,10 @@ export default async function CourseDetailPage({
         {/* Course Header */}
         <div className="mb-8 flex items-start justify-between">
           <div className="flex-1">
-            <h1 className="mb-2 text-3xl font-bold text-gray-900">
+            <h1 className="mb-2 text-3xl font-bold text-foreground">
               {course.title}
             </h1>
-            <p className="mb-4 text-gray-600">{course.description}</p>
+            <p className="mb-4 text-muted-foreground">{course.description}</p>
             <div className="flex items-center gap-2">
               <Badge
                 variant="secondary"
@@ -116,17 +116,17 @@ export default async function CourseDetailPage({
                 {lectures.map((lecture) => (
                   <div
                     key={lecture._id}
-                    className="flex items-center justify-between rounded-lg border bg-white p-4"
+                    className="flex items-center justify-between rounded-lg border bg-card p-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground">
                         {lecture.order}
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">
+                        <h3 className="font-medium text-foreground">
                           {lecture.title}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           Added{" "}
                           {new Date(lecture.createdAt).toLocaleDateString()}
                         </p>
@@ -155,10 +155,10 @@ export default async function CourseDetailPage({
               </div>
             ) : (
               <div className="py-12 text-center">
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                <h3 className="mb-2 text-lg font-semibold text-foreground">
                   No lectures yet
                 </h3>
-                <p className="mb-4 text-gray-600">
+                <p className="mb-4 text-muted-foreground">
                   Start building your course by adding your first lecture
                 </p>
                 <Button asChild>
