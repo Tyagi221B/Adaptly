@@ -252,6 +252,18 @@
   margin: 0.75rem 0;
 }
 
+/* Link styling (used in both editor and student view) */
+.ProseMirror a {
+  color: inherit; /* match surrounding text (typically black) */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.ProseMirror a:hover {
+  color: #ea580c; /* orange-600 on hover */
+}
+
 /* Selection styling */
 .ProseMirror ::selection {
   background: #dbeafe;

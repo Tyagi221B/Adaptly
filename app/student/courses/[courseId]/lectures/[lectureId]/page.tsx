@@ -2,9 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
+import MarkdownIt from "markdown-it";
 import { authOptions } from "@/lib/auth-config";
 import { getLectureForStudent } from "@/actions/lecture.actions";
 import { getQuizForStudent } from "@/actions/quiz.actions";
@@ -19,6 +17,37 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import QuizTaker from "@/components/student/quiz-taker";
+
+const md = new MarkdownIt({
+  html: false,
+  linkify: true,
+  breaks: false,
+});
+
+// Ensure lecture links open in a new tab for students
+const defaultLinkOpen =
+  md.renderer.rules.link_open ||
+  function (tokens, idx, options, _env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+
+  const setAttr = (name: string, value: string) => {
+    const index = token.attrIndex(name);
+    if (index < 0) {
+      token.attrPush([name, value]);
+    } else {
+      token.attrs![index][1] = value;
+    }
+  };
+
+  setAttr("target", "_blank");
+  setAttr("rel", "noopener noreferrer");
+
+  return defaultLinkOpen(tokens, idx, options, env, self);
+};
 
 export default async function LectureViewerPage({
   params,
@@ -84,15 +113,11 @@ export default async function LectureViewerPage({
             </div>
             <CardTitle className="text-2xl">{lecture.title}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="prose prose-slate max-w-none">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeHighlight]}
-              >
-                {lecture.content}
-              </ReactMarkdown>
-            </div>
+          <CardContent className="pt-4">
+            <div
+              className="ProseMirror student-lecture-readonly"
+              dangerouslySetInnerHTML={{ __html: md.render(lecture.content) }}
+            />
           </CardContent>
         </Card>
 

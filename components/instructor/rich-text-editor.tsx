@@ -1,6 +1,7 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Extension } from "@tiptap/react";
+import type { Editor, Range } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -8,9 +9,13 @@ import Typography from "@tiptap/extension-typography";
 import ListItem from "@tiptap/extension-list-item";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
+import Link from "@tiptap/extension-link";
 import { common, createLowlight } from "lowlight";
+import Suggestion from "@tiptap/suggestion";
 import TurndownService from "turndown";
 import MarkdownIt from "markdown-it";
+import { slashCommands, renderSlashCommands } from "./slash-commands";
+import "tippy.js/dist/tippy.css";
 import {
   Bold,
   Italic,
@@ -42,6 +47,17 @@ const turndownService = new TurndownService({
   codeBlockStyle: "fenced",
 });
 
+// Ensure headings from the editor are always converted to markdown headings
+// so the student ReactMarkdown renderer preserves their hierarchy.
+turndownService.addRule("heading", {
+  filter: ["h1", "h2", "h3", "h4", "h5", "h6"],
+  replacement: function (content: string, node: HTMLElement) {
+    const level = Number(node.nodeName.charAt(1));
+    const prefix = "#".repeat(isNaN(level) ? 1 : level);
+    return "\n\n" + prefix + " " + content + "\n\n";
+  },
+});
+
 // Preserve code blocks properly
 turndownService.addRule("fencedCodeBlock", {
   filter: function (node: HTMLElement) {
@@ -56,6 +72,46 @@ turndownService.addRule("fencedCodeBlock", {
     const className = codeElement.getAttribute("class") || "";
     const language = className.replace("language-", "");
     return "\n```" + language + "\n" + codeElement.textContent + "\n```\n";
+  },
+});
+
+// Slash command extension
+interface SlashCommandHandlerProps {
+  editor: Editor;
+  range: Range;
+  props: {
+    command: (options: { editor: Editor; range: Range }) => void;
+  };
+}
+
+const SlashCommand = Extension.create({
+  name: "slashCommand",
+
+  addOptions() {
+    return {
+      suggestion: {
+        char: "/",
+        startOfLine: true,
+        command: ({ editor, range, props }: SlashCommandHandlerProps) => {
+          props.command({ editor, range });
+        },
+      },
+    };
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      Suggestion({
+        editor: this.editor,
+        ...this.options.suggestion,
+        items: ({ query }: { query: string }) => {
+          return slashCommands.filter((item) =>
+            item.title.toLowerCase().startsWith(query.toLowerCase())
+          );
+        },
+        render: renderSlashCommands,
+      }),
+    ];
   },
 });
 
@@ -85,15 +141,22 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         lowlight,
         defaultLanguage: "javascript",
       }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-blue-600 underline hover:text-blue-800",
+        },
+      }),
       Placeholder.configure({
         placeholder: ({ node }) => {
           if (node.type.name === "heading") {
             return "What's the title?";
           }
-          return "Start writing... Try markdown shortcuts: # for heading, - for list, ** for bold, ` for code";
+          return "Type / for commands, or start writing... Markdown shortcuts work too!";
         },
       }),
       Typography,
+      SlashCommand,
     ],
     content: value ? md.render(value) : "",
     editorProps: {
