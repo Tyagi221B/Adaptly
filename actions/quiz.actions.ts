@@ -121,6 +121,36 @@ export async function getQuizByLecture(lectureId: string, instructorId: string) 
   }
 }
 
+// Get quiz by lecture for students (doesn't check instructor ownership)
+export async function getQuizForStudent(lectureId: string) {
+  try {
+    await dbConnect();
+
+    const quiz = await Quiz.findOne({ lectureId }).lean();
+
+    if (!quiz) {
+      return {
+        success: true,
+        data: null, // No quiz exists
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        _id: quiz._id.toString(),
+        questions: quiz.questions,
+        passingScore: quiz.passingScore,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch quiz",
+    };
+  }
+}
+
 export async function deleteQuiz(lectureId: string, instructorId: string) {
   try {
     await dbConnect();

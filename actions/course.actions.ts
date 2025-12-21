@@ -234,3 +234,94 @@ export async function toggleCoursePublish(courseId: string, instructorId: string
     };
   }
 }
+
+// Get course details for students (doesn't check instructor ownership)
+export async function getCourseForStudent(courseId: string) {
+  try {
+    await dbConnect();
+
+    const course = await Course.findById(courseId).lean();
+
+    if (!course) {
+      return {
+        success: false,
+        error: "Course not found",
+      };
+    }
+
+    // Get lectures for this course
+    const lectures = await Lecture.find({ courseId })
+      .sort({ order: 1 })
+      .lean();
+
+    return {
+      success: true,
+      data: {
+        course: {
+          _id: course._id.toString(),
+          title: course.title,
+          description: course.description,
+          category: course.category,
+          isPublished: course.isPublished,
+          createdAt: course.createdAt,
+        },
+        lectures: lectures.map((lecture) => ({
+          _id: lecture._id.toString(),
+          title: lecture.title,
+          order: lecture.order,
+          createdAt: lecture.createdAt,
+        })),
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch course",
+    };
+  }
+}
+
+// Get all published courses for students (catalog)
+export async function getPublishedCourses() {
+  try {
+    await dbConnect();
+
+    const courses = await Course.find({ isPublished: true })
+      .populate("instructorId", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const coursesWithCount = await Promise.all(
+      courses.map(async (course) => {
+        const lectureCount = await Lecture.countDocuments({
+          courseId: course._id,
+        });
+
+        const instructor = course.instructorId as unknown as {
+          name: string;
+          email: string;
+        };
+
+        return {
+          _id: course._id.toString(),
+          title: course.title,
+          description: course.description,
+          category: course.category,
+          instructorName: instructor.name,
+          lectureCount,
+          createdAt: course.createdAt,
+        };
+      })
+    );
+
+    return {
+      success: true,
+      data: coursesWithCount,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch courses",
+    };
+  }
+}

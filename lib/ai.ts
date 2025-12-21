@@ -161,3 +161,72 @@ Return ONLY valid JSON, no additional text.`;
     );
   }
 }
+
+// Generate personalized remedial content based on wrong answers
+export interface WrongAnswer {
+  questionText: string;
+  correctAnswer: string;
+  studentAnswer: string;
+  explanation?: string;
+}
+
+export async function generateRemedialContent(
+  lectureContent: string,
+  wrongAnswers: WrongAnswer[]
+): Promise<string> {
+  try {
+    if (wrongAnswers.length === 0) {
+      return "Great job! You got all questions correct. No remedial content needed.";
+    }
+
+    const prompt = `You are a patient, supportive AI tutor helping a student who struggled with some quiz questions. Your goal is to help them truly understand the concepts they missed.
+
+LECTURE CONTENT:
+${lectureContent}
+
+QUESTIONS THE STUDENT GOT WRONG:
+${wrongAnswers
+  .map(
+    (qa, i) => `
+${i + 1}. Question: ${qa.questionText}
+   Student's Answer: ${qa.studentAnswer}
+   Correct Answer: ${qa.correctAnswer}
+   ${qa.explanation ? `Explanation: ${qa.explanation}` : ""}`
+  )
+  .join("\n")}
+
+INSTRUCTIONS:
+Create personalized remedial content that:
+1. Identifies the core concepts the student misunderstood
+2. Explains these concepts clearly using examples and analogies
+3. Shows WHY the correct answers are right (not just WHAT they are)
+4. Connects the concepts back to the lecture material
+5. Provides practical tips to remember these concepts
+6. Uses a warm, encouraging tone - mistakes are learning opportunities!
+
+FORMAT:
+- Use markdown formatting (headings, bold, lists, code blocks if needed)
+- Start with a brief, encouraging message
+- Organize content by concept (not by question)
+- Include concrete examples
+- End with a summary of key takeaways
+- Keep it concise but thorough (aim for 300-500 words)
+
+Write the remedial content now:`;
+
+    const { text } = await generateText({
+      model: groq("llama-3.3-70b-versatile"),
+      prompt,
+      temperature: 0.7,
+    });
+
+    return text.trim();
+  } catch (error) {
+    console.error("AI Remedial Content Generation Error:", error);
+    throw new Error(
+      error instanceof Error
+        ? `Failed to generate remedial content: ${error.message}`
+        : "Failed to generate remedial content"
+    );
+  }
+}

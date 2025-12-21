@@ -130,6 +130,39 @@ export async function getLectureById(lectureId: string, instructorId: string) {
   }
 }
 
+// Get lecture by ID for students (doesn't check instructor ownership)
+export async function getLectureForStudent(lectureId: string) {
+  try {
+    await dbConnect();
+
+    const lecture = await Lecture.findById(lectureId).lean();
+
+    if (!lecture) {
+      return {
+        success: false,
+        error: "Lecture not found",
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        _id: lecture._id.toString(),
+        courseId: lecture.courseId.toString(),
+        title: lecture.title,
+        content: lecture.content,
+        order: lecture.order,
+        createdAt: lecture.createdAt,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch lecture",
+    };
+  }
+}
+
 export async function updateLecture(
   lectureId: string,
   instructorId: string,
