@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Sparkles, Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,8 +93,8 @@ export default function QuizGenerator({
         return;
       }
 
+      toast.success("Quiz saved successfully!");
       router.refresh();
-      alert("Quiz saved successfully!");
       setIsSaving(false);
     } catch {
       setError("Failed to save quiz. Please try again.");

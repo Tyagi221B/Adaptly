@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { MoreVertical, BookOpen, Edit, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,7 +47,7 @@ export default function CourseCard({ course }: CourseCardProps) {
     }
 
     if (!session?.user?.id) {
-      alert("You must be logged in to delete a course");
+      toast.error("You must be logged in to delete a course");
       return;
     }
 
@@ -56,12 +57,13 @@ export default function CourseCard({ course }: CourseCardProps) {
       const result = await deleteCourse(course._id, session.user.id);
 
       if (result.success) {
-        router.refresh(); // Refresh the page to show updated course list
+        toast.success("Course deleted successfully");
+        router.refresh();
       } else {
-        alert(result.error || "Failed to delete course");
+        toast.error(result.error || "Failed to delete course");
       }
     } catch {
-      alert("Failed to delete course");
+      toast.error("Failed to delete course");
     } finally {
       setIsDeleting(false);
     }
