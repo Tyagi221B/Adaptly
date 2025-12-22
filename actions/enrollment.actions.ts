@@ -232,3 +232,39 @@ export async function getEnrollmentDetails(
     return { success: false, error: "Failed to fetch enrollment details" };
   }
 }
+
+export async function getEnrollmentByCourseId(
+  studentId: string,
+  courseId: string
+) {
+  try {
+    await dbConnect();
+
+    const enrollment = await Enrollment.findOne({
+      studentId: new Types.ObjectId(studentId),
+      courseId: new Types.ObjectId(courseId),
+    })
+      .select("progress")
+      .lean();
+
+    if (!enrollment) {
+      return {
+        success: true,
+        data: { completedLectures: [] },
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        completedLectures: enrollment.progress?.completedLectures || [],
+      },
+    };
+  } catch (error) {
+    console.error("Error getting enrollment:", error);
+    return {
+      success: false,
+      error: "Failed to get enrollment",
+    };
+  }
+}

@@ -1,16 +1,8 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { authOptions } from "@/lib/auth-config";
-import { StudentSidebar } from "@/components/navigation/student-sidebar";
-import { ThemeToggle } from "@/components/navigation/theme-toggle";
+import { TopNav } from "@/components/navigation/top-nav";
 import { Footer } from "@/components/navigation/footer";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { AppLogo } from "@/components/navigation/logo";
-import { signOut } from "next-auth/react";
 
 export default async function StudentLayout({
   children,
@@ -24,44 +16,10 @@ export default async function StudentLayout({
   }
 
   return (
-    <SidebarProvider>
-      <StudentSidebar />
-      <SidebarInset>
-        {/* Top navbar */}
-        <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between border-b bg-background px-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            {/* Desktop logo */}
-            <AppLogo className="hidden md:flex" />
-            {/* Mobile logo */}
-            <Link href="/" className="text-xl font-bold md:hidden">
-              Adaptly
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Separator orientation="vertical" className="h-6" />
-            <div className="text-right">
-              <p className="text-sm font-medium">{session.user.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{session.user.role}</p>
-            </div>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ callbackUrl: "/" });
-              }}
-            >
-              <Button variant="outline" size="sm" type="submit">
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            </form>
-          </div>
-        </header>
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="flex min-h-screen flex-col">
+      <TopNav userName={session.user.name} userRole="student" />
+      <main className="flex-1">{children}</main>
+      <Footer />
+    </div>
   );
 }

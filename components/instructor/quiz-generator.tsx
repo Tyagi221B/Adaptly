@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Plus, Trash2, Save } from "lucide-react";
+import { Sparkles, Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -141,7 +141,27 @@ export default function QuizGenerator({
 
   return (
     <div className="space-y-6">
-      {/* Generate/Regenerate Button */}
+      {isGenerating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">Generating Quiz with AI</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Analyzing lecture content and creating questions...
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    This may take 5-10 seconds
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {questions.length === 0 ? (
         <Card>
           <CardHeader>
@@ -157,8 +177,17 @@ export default function QuizGenerator({
               size="lg"
               className="w-full"
             >
-              <Sparkles className="mr-2 h-5 w-5" />
-              {isGenerating ? "Generating..." : "Generate Quiz"}
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Generate Quiz
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -176,29 +205,45 @@ export default function QuizGenerator({
               disabled={isGenerating}
               variant="outline"
             >
-              <Sparkles className="mr-2 h-4 w-4" />
-              {isGenerating ? "Regenerating..." : "Regenerate"}
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Regenerating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Regenerate
+                </>
+              )}
             </Button>
             <Button onClick={addQuestion} variant="outline">
               <Plus className="mr-2 h-4 w-4" />
               Add Question
             </Button>
             <Button onClick={handleSaveQuiz} disabled={isSaving}>
-              <Save className="mr-2 h-4 w-4" />
-              {isSaving ? "Saving..." : "Save Quiz"}
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Quiz
+                </>
+              )}
             </Button>
           </div>
         </div>
       )}
 
-      {/* Error Message */}
       {error && (
         <div className="rounded-md bg-red-50 p-4">
           <p className="text-sm text-red-500">{error}</p>
         </div>
       )}
 
-      {/* Passing Score */}
       {questions.length > 0 && (
         <Card>
           <CardHeader>
@@ -223,7 +268,6 @@ export default function QuizGenerator({
         </Card>
       )}
 
-      {/* Questions List */}
       <div className="space-y-6">
         {questions.map((question, qIndex) => (
           <Card key={qIndex}>
@@ -241,7 +285,6 @@ export default function QuizGenerator({
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Question Text */}
               <div className="space-y-2">
                 <Label>Question</Label>
                 <Textarea
@@ -254,7 +297,6 @@ export default function QuizGenerator({
                 />
               </div>
 
-              {/* Options */}
               <div className="space-y-3">
                 <Label>Options (select the correct answer)</Label>
                 {question.options.map((option, optIndex) => (
@@ -279,7 +321,6 @@ export default function QuizGenerator({
                 ))}
               </div>
 
-              {/* Explanation (Optional) */}
               <div className="space-y-2">
                 <Label>Explanation (Optional)</Label>
                 <Textarea

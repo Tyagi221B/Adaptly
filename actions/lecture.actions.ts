@@ -282,3 +282,38 @@ export async function getNextLectureOrder(courseId: string) {
     };
   }
 }
+
+export async function getCourseLectures(courseId: string, _studentId: string) {
+  try {
+    await dbConnect();
+
+    // Verify course exists and is published
+    const course = await Course.findById(courseId);
+    if (!course || !course.isPublished) {
+      return {
+        success: false,
+        error: "Course not found",
+      };
+    }
+
+    // Get all lectures for the course
+    const lectures = await Lecture.find({ courseId })
+      .select("_id title order")
+      .sort({ order: 1 })
+      .lean();
+
+    return {
+      success: true,
+      data: lectures.map((lecture) => ({
+        _id: lecture._id.toString(),
+        title: lecture.title,
+        order: lecture.order,
+      })),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to get lectures",
+    };
+  }
+}

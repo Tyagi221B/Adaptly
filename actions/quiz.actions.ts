@@ -7,6 +7,11 @@ import Lecture from "@/database/lecture.model";
 import Quiz from "@/database/quiz.model";
 import { SaveQuizSchema } from "@/lib/validations";
 import type { SaveQuizInput } from "@/lib/validations";
+import {
+  aiQuizGenerationLimiter,
+  getRateLimitIdentifier,
+  formatResetTime,
+} from "@/lib/rate-limit";
 
 export async function saveQuiz(instructorId: string, data: SaveQuizInput) {
   try {
@@ -197,6 +202,17 @@ export async function generateQuizFromLecture(
   questionCount: number = 5
 ) {
   try {
+    // Apply rate limiting to prevent AI API abuse
+    const identifier = getRateLimitIdentifier(instructorId);
+    const rateLimitResult = aiQuizGenerationLimiter.check(identifier);
+
+    if (!rateLimitResult.allowed) {
+      return {
+        success: false,
+        error: `Rate limit exceeded. You can generate ${aiQuizGenerationLimiter["maxRequests"]} quizzes per minute. Please try again in ${formatResetTime(rateLimitResult.resetTime)}.`,
+      };
+    }
+
     await dbConnect();
 
     // Verify instructor owns the lecture

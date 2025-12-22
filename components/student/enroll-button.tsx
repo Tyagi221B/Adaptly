@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { enrollInCourse } from "@/actions/enrollment.actions";
 
@@ -43,7 +44,14 @@ export default function EnrollButton({ courseId, studentId }: EnrollButtonProps)
       size="lg"
       className="mt-4"
     >
-      {isEnrolling ? "Enrolling..." : "Enroll in Course"}
+      {isEnrolling ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Enrolling...
+        </>
+      ) : (
+        "Enroll in Course"
+      )}
     </Button>
   );
 }

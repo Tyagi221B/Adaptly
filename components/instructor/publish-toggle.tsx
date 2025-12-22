@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Globe, Lock } from "lucide-react";
+import { Globe, Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { toggleCoursePublish } from "@/actions/course.actions";
@@ -62,15 +62,20 @@ export default function PublishToggle({
       variant={isPublished ? "outline" : "default"}
       className="gap-2"
     >
-      {isPublished ? (
+      {isToggling ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {isPublished ? "Unpublishing..." : "Publishing..."}
+        </>
+      ) : isPublished ? (
         <>
           <Lock className="h-4 w-4" />
-          {isToggling ? "Unpublishing..." : "Unpublish Course"}
+          Unpublish Course
         </>
       ) : (
         <>
           <Globe className="h-4 w-4" />
-          {isToggling ? "Publishing..." : "Publish Course"}
+          Publish Course
         </>
       )}
     </Button>

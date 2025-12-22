@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 import { submitQuizAttempt } from "@/actions/quiz-attempt.actions";
 
 interface Question {
@@ -103,7 +108,27 @@ export default function QuizTaker({
 
   return (
     <div className="space-y-6">
-      {/* Questions */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">Analyzing Your Answers</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Calculating your score and generating personalized feedback...
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    This may take a few seconds
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {quiz.questions.map((question, questionIndex) => (
         <div
           key={questionIndex}
@@ -148,7 +173,6 @@ export default function QuizTaker({
         </div>
       ))}
 
-      {/* Submit Button */}
       <div className="sticky bottom-4 rounded-lg border bg-card p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
@@ -160,7 +184,14 @@ export default function QuizTaker({
             disabled={!allAnswered || isSubmitting}
             size="lg"
           >
-            {isSubmitting ? "Submitting..." : "Submit Quiz"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Quiz"
+            )}
           </Button>
         </div>
       </div>

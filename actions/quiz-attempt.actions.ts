@@ -5,6 +5,12 @@ import QuizAttempt from "@/database/quiz-attempt.model";
 import Quiz from "@/database/quiz.model";
 import { Types } from "mongoose";
 import type { IStudentAnswer } from "@/database/quiz-attempt.model";
+import {
+  aiRemedialContentLimiter,
+  getRateLimitIdentifier,
+  formatResetTime,
+} from "@/lib/rate-limit";
+import { generateRemedialContent as generateRemedialContentAI, type WrongAnswer } from "@/lib/ai";
 
 interface ActionResponse<T = unknown> {
   success: boolean;
@@ -287,5 +293,42 @@ export async function hasPassedQuiz(
   } catch (error) {
     console.error("Error checking quiz pass status:", error);
     return { success: false, error: "Failed to check quiz status" };
+  }
+}
+
+/**
+ * Generate personalized remedial content based on student's wrong answers
+ * Includes rate limiting to prevent AI API abuse
+ */
+export async function generateRemedialContent(
+  studentId: string,
+  lectureContent: string,
+  wrongAnswers: WrongAnswer[]
+): Promise<ActionResponse<{ content: string }>> {
+  try {
+    // Apply rate limiting
+    const identifier = getRateLimitIdentifier(studentId);
+    const rateLimitResult = aiRemedialContentLimiter.check(identifier);
+
+    if (!rateLimitResult.allowed) {
+      return {
+        success: false,
+        error: `Rate limit exceeded. Please try again in ${formatResetTime(rateLimitResult.resetTime)}.`,
+      };
+    }
+
+    // Generate remedial content using AI
+    const content = await generateRemedialContentAI(lectureContent, wrongAnswers);
+
+    return {
+      success: true,
+      data: { content },
+    };
+  } catch (error) {
+    console.error("Failed to generate remedial content:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to generate remedial content",
+    };
   }
 }

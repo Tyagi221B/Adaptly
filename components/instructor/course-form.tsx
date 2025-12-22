@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -104,7 +105,6 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Title Field */}
           <div className="space-y-2">
             <Label htmlFor="title">
               Course Title <span className="text-red-500">*</span>
@@ -121,7 +121,6 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             )}
           </div>
 
-          {/* Description Field */}
           <div className="space-y-2">
             <Label htmlFor="description">
               Course Description <span className="text-red-500">*</span>
@@ -140,7 +139,6 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             )}
           </div>
 
-          {/* Category Field */}
           <div className="space-y-2">
             <Label htmlFor="category">
               Category <span className="text-red-500">*</span>
@@ -168,14 +166,12 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             )}
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="rounded-md bg-red-50 p-3">
               <p className="text-sm text-red-500">{error}</p>
             </div>
           )}
 
-          {/* Submit Button */}
           <div className="flex gap-4">
             <Button
               type="button"
@@ -187,13 +183,14 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading
-                ? isEditMode
-                  ? "Updating..."
-                  : "Creating..."
-                : isEditMode
-                ? "Update Course"
-                : "Create Course"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isEditMode ? "Updating..." : "Creating..."}
+                </>
+              ) : (
+                isEditMode ? "Update Course" : "Create Course"
+              )}
             </Button>
           </div>
         </form>

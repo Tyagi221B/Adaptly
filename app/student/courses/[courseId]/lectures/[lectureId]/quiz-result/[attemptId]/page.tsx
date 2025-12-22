@@ -6,9 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { authOptions } from "@/lib/auth-config";
-import { getQuizAttemptById } from "@/actions/quiz-attempt.actions";
+import { getQuizAttemptById, generateRemedialContent } from "@/actions/quiz-attempt.actions";
 import { markLectureComplete } from "@/actions/enrollment.actions";
-import { generateRemedialContent } from "@/lib/ai";
 import type { WrongAnswer } from "@/lib/ai";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,17 +63,19 @@ export default async function QuizResultPage({
       };
     });
 
-  // Generate AI remedial content
+  // Generate AI remedial content with rate limiting
   let remedialContent = "";
   if (wrongAnswers.length > 0) {
-    try {
-      remedialContent = await generateRemedialContent(
-        attempt.lecture.content,
-        wrongAnswers
-      );
-    } catch (error) {
-      console.error("Failed to generate remedial content:", error);
-      remedialContent =
+    const result = await generateRemedialContent(
+      session.user.id,
+      attempt.lecture.content,
+      wrongAnswers
+    );
+
+    if (result.success && result.data) {
+      remedialContent = result.data.content;
+    } else {
+      remedialContent = result.error ||
         "Unable to generate personalized feedback at this time. Please review the questions you got wrong and try again.";
     }
   }
