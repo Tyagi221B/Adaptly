@@ -4,6 +4,7 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth-config";
 import { StudentSidebar } from "@/components/navigation/student-sidebar";
 import { ThemeToggle } from "@/components/navigation/theme-toggle";
+import { Footer } from "@/components/navigation/footer";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -58,7 +59,8 @@ export default async function StudentLayout({
             </form>
           </div>
         </header>
-        {children}
+        <main className="flex-1">{children}</main>
+        <Footer />
       </SidebarInset>
     </SidebarProvider>
   );
