@@ -1,13 +1,14 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, CheckCircle2, XCircle } from "lucide-react";
+import { ChevronLeft, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { authOptions } from "@/lib/auth-config";
 import { getQuizAttemptById, generateRemedialContent } from "@/actions/quiz-attempt.actions";
 import { markLectureComplete } from "@/actions/enrollment.actions";
+import { getCourseLectures } from "@/actions/lecture.actions";
 import type { WrongAnswer } from "@/lib/ai";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,17 @@ export default async function QuizResultPage({
   if (attempt.passed) {
     await markLectureComplete(session.user.id, courseId, lectureId);
   }
+
+  // Get all lectures to find the next one
+  const lecturesResult = await getCourseLectures(courseId, session.user.id);
+  const allLectures = lecturesResult.success && lecturesResult.data
+    ? lecturesResult.data.sort((a, b) => a.order - b.order)
+    : [];
+
+  const currentLectureIndex = allLectures.findIndex(l => l._id === lectureId);
+  const nextLecture = currentLectureIndex !== -1 && currentLectureIndex < allLectures.length - 1
+    ? allLectures[currentLectureIndex + 1]
+    : null;
 
   // Prepare wrong answers for AI
   const wrongAnswers: WrongAnswer[] = attempt.answers
@@ -269,13 +281,20 @@ export default async function QuizResultPage({
           <Button asChild variant="outline" className="flex-1">
             <Link href={`/student/courses/${courseId}`}>Back to Course</Link>
           </Button>
-          {!attempt.passed && (
+          {!attempt.passed ? (
             <Button asChild className="flex-1">
               <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
                 Retake Quiz
               </Link>
             </Button>
-          )}
+          ) : nextLecture ? (
+            <Button asChild className="flex-1">
+              <Link href={`/student/courses/${courseId}/lectures/${nextLecture._id}`}>
+                Next Lecture
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          ) : null}
         </div>
       </div>
     </div>

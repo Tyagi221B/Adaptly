@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { Types } from "mongoose";
+import { ChevronLeft, ArrowRight } from "lucide-react";
 import MarkdownIt from "markdown-it";
 import type { Options } from "markdown-it/lib/index.mjs";
 import type { RenderRule } from "markdown-it/lib/renderer.mjs";
@@ -9,9 +10,9 @@ import type Token from "markdown-it/lib/token.mjs";
 import { common, createLowlight } from "lowlight";
 import type { Root, Element, Text } from "hast";
 import { authOptions } from "@/lib/auth-config";
-import { getLectureForStudent } from "@/actions/lecture.actions";
+import { getLectureForStudent, getCourseLectures } from "@/actions/lecture.actions";
 import { getQuizForStudent } from "@/actions/quiz.actions";
-import { isEnrolled } from "@/actions/enrollment.actions";
+import { isEnrolled, getEnrollmentByCourseId } from "@/actions/enrollment.actions";
 import { getLatestQuizAttempt } from "@/actions/quiz-attempt.actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import QuizTaker from "@/components/student/quiz-taker";
+import MarkCompleteButton from "@/components/student/mark-complete-button";
 
 const lowlight = createLowlight(common);
 
@@ -126,6 +128,24 @@ export default async function LectureViewerPage({
     }
   }
 
+  // Check if lecture is already completed
+  const enrollmentData = await getEnrollmentByCourseId(session.user.id, courseId);
+  const completedLectureIds = enrollmentData.success && enrollmentData.data
+    ? enrollmentData.data.completedLectures.map((id: Types.ObjectId) => id.toString())
+    : [];
+  const isLectureCompleted = completedLectureIds.includes(lectureId);
+
+  // Get all lectures to find the next one
+  const lecturesResult = await getCourseLectures(courseId, session.user.id);
+  const allLectures = lecturesResult.success && lecturesResult.data
+    ? lecturesResult.data.sort((a, b) => a.order - b.order)
+    : [];
+
+  const currentLectureIndex = allLectures.findIndex(l => l._id === lectureId);
+  const nextLecture = currentLectureIndex !== -1 && currentLectureIndex < allLectures.length - 1
+    ? allLectures[currentLectureIndex + 1]
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -200,14 +220,23 @@ export default async function LectureViewerPage({
                         View Results
                       </Link>
                     </Button>
-                    {!latestAttempt.passed && (
+                    {!latestAttempt.passed ? (
                       <QuizTaker
                         quiz={quiz}
                         lectureId={lectureId}
                         courseId={courseId}
                         studentId={session.user.id}
                       />
-                    )}
+                    ) : nextLecture ? (
+                      <Button asChild className="flex-1">
+                        <Link
+                          href={`/student/courses/${courseId}/lectures/${nextLecture._id}`}
+                        >
+                          Next Lecture
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               ) : (
@@ -222,10 +251,20 @@ export default async function LectureViewerPage({
           </Card>
         ) : (
           <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                No quiz available for this lecture
-              </p>
+            <CardHeader>
+              <CardTitle>Complete This Lecture</CardTitle>
+              <CardDescription>
+                Mark this lecture as complete to track your progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MarkCompleteButton
+                studentId={session.user.id}
+                courseId={courseId}
+                lectureId={lectureId}
+                isCompleted={isLectureCompleted}
+                nextLectureId={nextLecture?._id}
+              />
             </CardContent>
           </Card>
         )}
