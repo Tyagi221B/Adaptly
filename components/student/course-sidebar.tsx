@@ -102,7 +102,7 @@ export function CourseSidebar({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-3.5 w-3.5 flex-shrink-0" />
+                    <FileText className="h-3.5 w-3.5 shrink-0" />
                     <span className="text-xs text-muted-foreground">
                       Lecture {index + 1}
                     </span>
