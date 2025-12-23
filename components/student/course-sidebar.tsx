@@ -6,6 +6,7 @@ import { CheckCircle2, Circle, FileText, Award } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 interface Lecture {
   _id: string;
@@ -29,6 +30,19 @@ export function CourseSidebar({
   onLinkClick,
 }: CourseSidebarProps) {
   const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect if we're on mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint is 768px
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Sort lectures by order
   const sortedLectures = [...lectures].sort((a, b) => a.order - b.order);
@@ -87,7 +101,12 @@ export function CourseSidebar({
               <Link
                 key={lecture._id}
                 href={`/student/courses/${courseId}/lectures/${lecture._id}`}
-                onClick={() => onLinkClick?.()}
+                onClick={() => {
+                  // Only close sidebar on mobile, keep it open on desktop
+                  if (isMobile) {
+                    onLinkClick?.();
+                  }
+                }}
                 className={cn(
                   "flex items-start gap-3 px-3 py-2.5 rounded-md text-sm transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",
