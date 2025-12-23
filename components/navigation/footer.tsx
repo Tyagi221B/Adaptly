@@ -100,7 +100,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
           <p>
-            &copy; {currentYear} Adaptly. Built for House of Edtech Assignment.
+            &copy; {currentYear} Adaptly.
           </p>
           <p className="text-xs">
             Created with Next.js 16 | Deployed on Vercel
