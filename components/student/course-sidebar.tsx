@@ -101,6 +101,7 @@ export function CourseSidebar({
               <Link
                 key={lecture._id}
                 href={`/student/courses/${courseId}/lectures/${lecture._id}`}
+                prefetch={true}
                 onClick={() => {
                   // Only close sidebar on mobile, keep it open on desktop
                   if (isMobile) {
