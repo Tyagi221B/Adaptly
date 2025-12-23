@@ -31,7 +31,7 @@ export default async function EditLecturePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="container mx-auto py-8">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href={`/instructor/courses/${courseId}`}>

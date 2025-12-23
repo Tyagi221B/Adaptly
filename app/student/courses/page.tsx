@@ -47,8 +47,7 @@ export default async function CourseCatalogPage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      {/* Header */}
+    <div className="container mx-auto py-8">
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold text-foreground">
           Course Catalog

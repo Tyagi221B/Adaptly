@@ -16,8 +16,8 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div className="container mx-auto py-8">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Adaptly</h3>
             <p className="text-sm text-muted-foreground">
@@ -52,10 +52,7 @@ export function Footer() {
             <h3 className="text-lg font-semibold">Developer</h3>
             <div className="space-y-3">
               <div>
-                <p className="font-medium">Asmit Tyagi</p>
-                <p className="text-sm text-muted-foreground">
-                  Full Stack Developer
-                </p>
+                <p className="font-medium">Asmit Tyagi • Full Stack Developer</p>
               </div>
 
               <div className="flex flex-col gap-2">

@@ -149,8 +149,7 @@ export default async function LectureViewerPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        {/* Back Button */}
+      <div className="container mx-auto max-w-4xl py-8">
         <Button variant="ghost" asChild className="mb-6">
           <Link href={`/student/courses/${courseId}`}>
             <ChevronLeft className="mr-2 h-4 w-4" />

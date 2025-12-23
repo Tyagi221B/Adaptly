@@ -39,11 +39,11 @@ export function TopNav({ userName, userRole }: TopNavProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-6">
-          <AppLogo />
+      <div className="container mx-auto flex h-16 items-center justify-between">
+        <AppLogo />
 
-          <nav className="hidden md:flex items-center gap-1">
+        <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-1 mr-2">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <Button
@@ -59,9 +59,27 @@ export function TopNav({ userName, userRole }: TopNavProps) {
               </Link>
             ))}
           </nav>
-        </div>
 
-        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2 md:hidden">
+                Menu
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {navLinks.map((link) => (
+                <DropdownMenuItem key={link.href} asChild>
+                  <Link
+                    href={link.href}
+                    className={cn(link.active && "bg-secondary")}
+                  >
+                    {link.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <ThemeToggle />
 
           <DropdownMenu>
@@ -88,28 +106,6 @@ export function TopNav({ userName, userRole }: TopNavProps) {
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="flex md:hidden items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Menu
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {navLinks.map((link) => (
-                <DropdownMenuItem key={link.href} asChild>
-                  <Link
-                    href={link.href}
-                    className={cn(link.active && "bg-secondary")}
-                  >
-                    {link.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
