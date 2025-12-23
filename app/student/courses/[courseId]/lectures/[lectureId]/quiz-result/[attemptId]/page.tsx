@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { ChevronLeft, CheckCircle2, XCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -95,7 +95,7 @@ export default async function QuizResultPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-4xl py-8">
+      <div className="container mx-auto max-w-4xl py-8 px-4">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>

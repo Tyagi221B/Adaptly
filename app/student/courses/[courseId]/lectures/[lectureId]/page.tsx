@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Types } from "mongoose";
-import { ChevronLeft, ArrowRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import MarkdownIt from "markdown-it";
 import type { Options } from "markdown-it/lib/index.mjs";
 import type { RenderRule } from "markdown-it/lib/renderer.mjs";
@@ -150,7 +150,7 @@ export default async function LectureViewerPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-4xl py-8">
+      <div className="container mx-auto max-w-4xl py-8 px-4">
         <Button variant="ghost" asChild className="mb-6">
           <Link href={`/student/courses/${courseId}`}>
             <ChevronLeft className="mr-2 h-4 w-4" />

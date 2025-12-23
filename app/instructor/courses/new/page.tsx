@@ -15,7 +15,7 @@ export default async function NewCoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-4">
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/instructor/dashboard">
             <ChevronLeft className="mr-2 h-4 w-4" />

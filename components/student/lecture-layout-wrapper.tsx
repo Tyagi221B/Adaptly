@@ -44,25 +44,38 @@ export function LectureLayoutWrapper({
 
   return (
     <div className="flex h-[calc(100vh-4rem)] relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-20 left-4 z-50 md:top-20 md:left-4 text-green-600 hover:text-green-700 dark:text-orange-500 dark:hover:text-orange-600"
-      >
-        {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
+      {!isSidebarOpen && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsSidebarOpen(true)}
+          className="fixed top-16 left-4 z-50 md:top-20 md:left-4 text-green-600 hover:text-green-700 dark:text-orange-500 dark:hover:text-orange-600 bg-background border border-border shadow-md hover:bg-accent"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
 
       {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed top-16 left-72 z-50 md:top-20 md:left-74 text-green-600 hover:text-green-700 dark:text-orange-500 dark:hover:text-orange-600 bg-background border border-border shadow-md hover:bg-accent"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        </>
       )}
 
       <div
         className={`
-          fixed md:static inset-y-0 left-0 z-40
+          fixed md:static top-16 bottom-0 md:inset-y-0 left-0 z-60
           transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           ${!isSidebarOpen ? "md:hidden" : ""}
