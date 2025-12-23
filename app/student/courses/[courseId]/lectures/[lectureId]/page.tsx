@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import QuizTaker from "@/components/student/quiz-taker";
 import MarkCompleteButton from "@/components/student/mark-complete-button";
+import AIChatAssistant from "@/components/student/ai-chat-assistant";
 
 const lowlight = createLowlight(common);
 
@@ -269,6 +270,11 @@ export default async function LectureViewerPage({
           </Card>
         )}
       </div>
+
+      <AIChatAssistant
+        lectureContent={lecture.content}
+        lectureTitle={lecture.title}
+      />
     </div>
   );
 }
