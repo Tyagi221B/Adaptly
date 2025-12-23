@@ -20,7 +20,7 @@ export default async function InstructorDashboard() {
 
   return (
     <main className="container mx-auto py-8 px-4">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             Welcome, {session.user.name}!
@@ -30,7 +30,7 @@ export default async function InstructorDashboard() {
           </p>
         </div>
 
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="w-full md:w-auto">
           <Link href="/instructor/courses/new">
             <Plus className="mr-2 h-5 w-5" />
             Create Course

@@ -56,7 +56,7 @@ export default async function CourseDetailPage({
         </Button>
 
         {/* Course Header */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex-1">
             <h1 className="mb-2 text-3xl font-bold text-foreground">
               {course.title}
@@ -83,7 +83,7 @@ export default async function CourseDetailPage({
               instructorId={session.user.id}
               isPublished={course.isPublished}
             />
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="flex-1 md:flex-none">
               <Link href={`/instructor/courses/${courseId}/edit`}>
                 <Settings className="mr-2 h-4 w-4" />
                 Edit Course

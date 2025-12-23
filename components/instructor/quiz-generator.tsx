@@ -193,18 +193,19 @@ export default function QuizGenerator({
           </CardContent>
         </Card>
       ) : (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-foreground">Quiz Questions</h2>
             <p className="text-muted-foreground">
               Edit questions or generate new ones with AI
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               onClick={handleGenerateQuiz}
               disabled={isGenerating}
               variant="outline"
+              className="w-full sm:w-auto"
             >
               {isGenerating ? (
                 <>
@@ -218,11 +219,11 @@ export default function QuizGenerator({
                 </>
               )}
             </Button>
-            <Button onClick={addQuestion} variant="outline">
+            <Button onClick={addQuestion} variant="outline" className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Add Question
             </Button>
-            <Button onClick={handleSaveQuiz} disabled={isSaving}>
+            <Button onClick={handleSaveQuiz} disabled={isSaving} className="w-full sm:w-auto">
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

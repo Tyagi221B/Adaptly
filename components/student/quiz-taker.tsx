@@ -174,7 +174,7 @@ export default function QuizTaker({
       ))}
 
       <div className="sticky bottom-4 rounded-lg border bg-card p-4 shadow-lg">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-muted-foreground">
             {Object.keys(answers).length} of {quiz.questions.length} questions
             answered
@@ -183,6 +183,7 @@ export default function QuizTaker({
             onClick={handleSubmit}
             disabled={!allAnswered || isSubmitting}
             size="lg"
+            className="w-full sm:w-auto"
           >
             {isSubmitting ? (
               <>
