@@ -213,8 +213,8 @@ export default async function LectureViewerPage({
                     </p>
                   </div>
 
-                  <div className="flex gap-3">
-                    <Button asChild variant="outline" className="flex-1">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button asChild variant="outline" className="w-full sm:flex-1">
                       <Link
                         href={`/student/courses/${courseId}/lectures/${lectureId}/quiz-result/${latestAttempt._id}`}
                       >
@@ -232,7 +232,7 @@ export default async function LectureViewerPage({
                       <NextLectureButton
                         courseId={courseId}
                         lectureId={nextLecture._id}
-                        className="flex-1"
+                        className="w-full sm:flex-1"
                       />
                     ) : null}
                   </div>

@@ -98,7 +98,7 @@ export default function QuizTaker({
 
   if (!isStarted) {
     return (
-      <Button onClick={handleStartQuiz} size="lg" className="w-full">
+      <Button onClick={handleStartQuiz} size="lg" className="w-full sm:flex-1">
         Take Quiz
       </Button>
     );

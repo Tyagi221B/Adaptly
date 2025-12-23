@@ -278,12 +278,12 @@ export default async function QuizResultPage({
         </Card>
 
         {/* Actions */}
-        <div className="flex gap-4">
-          <Button asChild variant="outline" className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button asChild variant="outline" className="w-full sm:flex-1">
             <Link href={`/student/courses/${courseId}`}>Back to Course</Link>
           </Button>
           {!attempt.passed ? (
-            <Button asChild className="flex-1">
+            <Button asChild className="w-full sm:flex-1">
               <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
                 Retake Quiz
               </Link>
@@ -292,7 +292,7 @@ export default async function QuizResultPage({
             <NextLectureButton
               courseId={courseId}
               lectureId={nextLecture._id}
-              className="flex-1"
+              className="w-full sm:flex-1"
             />
           ) : null}
         </div>
