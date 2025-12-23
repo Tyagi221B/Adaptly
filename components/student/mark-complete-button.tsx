@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { markLectureComplete } from "@/actions/enrollment.actions";
+import { useSidebar } from "./lecture-layout-wrapper";
 
 interface MarkCompleteButtonProps {
   studentId: string;
@@ -25,6 +26,7 @@ export default function MarkCompleteButton({
 }: MarkCompleteButtonProps) {
   const router = useRouter();
   const [isMarking, setIsMarking] = useState(false);
+  const { closeSidebar } = useSidebar();
 
   const handleMarkComplete = async (goToNext: boolean = false) => {
     setIsMarking(true);
@@ -60,7 +62,10 @@ export default function MarkCompleteButton({
             Completed
           </Button>
           <Button asChild size="lg" className="flex-1">
-            <Link href={`/student/courses/${courseId}/lectures/${nextLectureId}`}>
+            <Link
+              href={`/student/courses/${courseId}/lectures/${nextLectureId}`}
+              onClick={closeSidebar}
+            >
               Next Lecture
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>

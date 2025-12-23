@@ -18,6 +18,7 @@ interface CourseSidebarProps {
   courseTitle: string;
   lectures: Lecture[];
   completedLectureIds: string[];
+  onLinkClick?: () => void;
 }
 
 export function CourseSidebar({
@@ -25,6 +26,7 @@ export function CourseSidebar({
   courseTitle,
   lectures,
   completedLectureIds,
+  onLinkClick,
 }: CourseSidebarProps) {
   const pathname = usePathname();
 
@@ -85,6 +87,7 @@ export function CourseSidebar({
               <Link
                 key={lecture._id}
                 href={`/student/courses/${courseId}/lectures/${lecture._id}`}
+                onClick={() => onLinkClick?.()}
                 className={cn(
                   "flex items-start gap-3 px-3 py-2.5 rounded-md text-sm transition-colors",
                   "hover:bg-accent hover:text-accent-foreground",

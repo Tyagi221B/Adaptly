@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, createContext, useContext } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseSidebar } from "./course-sidebar";
+
+const SidebarContext = createContext<{ closeSidebar: () => void } | undefined>(undefined);
+
+export const useSidebar = () => {
+  const context = useContext(SidebarContext);
+  if (!context) {
+    return { closeSidebar: () => {} };
+  }
+  return context;
+};
 
 interface Lecture {
   _id: string;
@@ -28,13 +38,17 @@ export function LectureLayoutWrapper({
 }: LectureLayoutWrapperProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
     <div className="flex h-[calc(100vh-4rem)] relative">
       <Button
         variant="ghost"
         size="icon"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-20 left-4 z-50 md:top-20 md:left-4"
+        className="fixed top-20 left-4 z-50 md:top-20 md:left-4 text-green-600 hover:text-green-700 dark:text-orange-500 dark:hover:text-orange-600"
       >
         {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
@@ -59,11 +73,14 @@ export function LectureLayoutWrapper({
           courseTitle={courseTitle}
           lectures={lectures}
           completedLectureIds={completedLectureIds}
+          onLinkClick={closeSidebar}
         />
       </div>
 
       <div className={`flex-1 overflow-auto ${isSidebarOpen ? "md:ml-0" : ""}`}>
-        {children}
+        <SidebarContext.Provider value={{ closeSidebar }}>
+          {children}
+        </SidebarContext.Provider>
       </div>
     </div>
   );

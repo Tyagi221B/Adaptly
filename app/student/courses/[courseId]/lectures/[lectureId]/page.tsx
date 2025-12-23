@@ -25,6 +25,7 @@ import {
 import QuizTaker from "@/components/student/quiz-taker";
 import MarkCompleteButton from "@/components/student/mark-complete-button";
 import AIChatAssistant from "@/components/student/ai-chat-assistant";
+import { NextLectureButton } from "@/components/student/next-lecture-button";
 
 const lowlight = createLowlight(common);
 
@@ -228,14 +229,11 @@ export default async function LectureViewerPage({
                         studentId={session.user.id}
                       />
                     ) : nextLecture ? (
-                      <Button asChild className="flex-1">
-                        <Link
-                          href={`/student/courses/${courseId}/lectures/${nextLecture._id}`}
-                        >
-                          Next Lecture
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
+                      <NextLectureButton
+                        courseId={courseId}
+                        lectureId={nextLecture._id}
+                        className="flex-1"
+                      />
                     ) : null}
                   </div>
                 </div>

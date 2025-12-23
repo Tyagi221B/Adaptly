@@ -19,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { NextLectureButton } from "@/components/student/next-lecture-button";
 
 export default async function QuizResultPage({
   params,
@@ -288,12 +289,11 @@ export default async function QuizResultPage({
               </Link>
             </Button>
           ) : nextLecture ? (
-            <Button asChild className="flex-1">
-              <Link href={`/student/courses/${courseId}/lectures/${nextLecture._id}`}>
-                Next Lecture
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <NextLectureButton
+              courseId={courseId}
+              lectureId={nextLecture._id}
+              className="flex-1"
+            />
           ) : null}
         </div>
       </div>
