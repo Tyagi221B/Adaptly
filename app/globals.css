@@ -784,3 +784,12 @@
 .dark .student-lecture-readonly a:hover {
   color: oklch(0.75 0.14 50);
 }
+
+/* ============================================
+   Navigation Loading Feedback
+   ============================================ */
+
+/* Change cursor to progress/wait when clicking navigation links */
+a:active:not([target="_blank"]):not([href^="#"]):not([download]) {
+  cursor: progress !important;
+}
