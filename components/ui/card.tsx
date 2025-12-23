@@ -1,17 +1,55 @@
+"use client"
+
 import * as React from "react"
+import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({ className, children, ...props }: React.ComponentProps<"div">) {
+  const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 })
+  const [isHovered, setIsHovered] = React.useState(false)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    })
+  }
+
   return (
-    <div
+    <motion.div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-soft relative overflow-hidden will-change-transform",
+        "hover:shadow-elevated hover:-translate-y-1 transition-all duration-300",
         className
       )}
-      {...props}
-    />
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileHover={{ scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      {/* Shimmer effect on hover */}
+      {isHovered && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ background: "transparent" }}
+          animate={{
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.06), transparent 40%)`,
+          }}
+          transition={{ duration: 0 }}
+        />
+      )}
+
+      {/* Border glow on hover */}
+      {isHovered && (
+        <div className="absolute inset-0 rounded-xl opacity-50 border-2 border-primary/20 animate-pulse pointer-events-none" />
+      )}
+
+      {children}
+    </motion.div>
   )
 }
 

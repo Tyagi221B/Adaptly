@@ -14,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { StaggerGrid } from "@/components/ui/stagger-grid";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 export default async function StudentDashboard() {
   const session = await getServerSession(authOptions);
@@ -55,7 +57,7 @@ export default async function StudentDashboard() {
         </p>
       </div>
 
-        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+        <StaggerGrid className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xs font-medium sm:text-sm">
@@ -64,7 +66,9 @@ export default async function StudentDashboard() {
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold sm:text-2xl">{totalEnrollments}</div>
+              <div className="text-xl font-bold sm:text-2xl">
+                <AnimatedCounter value={totalEnrollments} />
+              </div>
             </CardContent>
           </Card>
 
@@ -77,7 +81,9 @@ export default async function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl font-bold sm:text-2xl">
-                {completedLectures}/{totalLectures}
+                <AnimatedCounter value={completedLectures} />
+                <span>/</span>
+                <AnimatedCounter value={totalLectures} />
               </div>
             </CardContent>
           </Card>
@@ -90,7 +96,9 @@ export default async function StudentDashboard() {
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold sm:text-2xl">{completedCourses}</div>
+              <div className="text-xl font-bold sm:text-2xl">
+                <AnimatedCounter value={completedCourses} />
+              </div>
             </CardContent>
           </Card>
 
@@ -102,14 +110,14 @@ export default async function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl font-bold sm:text-2xl">
-                {totalLectures > 0
-                  ? Math.round((completedLectures / totalLectures) * 100)
-                  : 0}
-                %
+                <AnimatedCounter
+                  value={totalLectures > 0 ? Math.round((completedLectures / totalLectures) * 100) : 0}
+                  suffix="%"
+                />
               </div>
             </CardContent>
           </Card>
-        </div>
+        </StaggerGrid>
 
         {/* Enrolled Courses */}
         <div className="mb-6 flex items-center justify-between">
@@ -120,11 +128,11 @@ export default async function StudentDashboard() {
         </div>
 
         {enrollments && enrollments.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <StaggerGrid className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {enrollments.map((enrollment) => (
               <Card
                 key={enrollment._id}
-                className="flex flex-col hover:shadow-lg transition-shadow"
+                className="flex flex-col"
               >
                 <CardHeader>
                   <CardTitle className="line-clamp-2">
@@ -175,7 +183,7 @@ export default async function StudentDashboard() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </StaggerGrid>
         ) : (
           <Card>
             <CardContent className="py-12 text-center">

@@ -4,6 +4,8 @@ import "./globals.css";
 import AuthSessionProvider from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { LoadingBar } from "@/components/ui/loading-bar";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { checkDatabaseConnection } from "@/lib/startup";
 
 const geistSans = Geist({
@@ -41,6 +43,8 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <LoadingBar />
+            <ScrollToTop />
             {children}
           </ThemeProvider>
         </AuthSessionProvider>

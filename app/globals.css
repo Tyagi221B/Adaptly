@@ -355,6 +355,293 @@
   color: oklch(0.98 0 0);
 }
 
+/* ========================================
+   ENHANCED UI ANIMATIONS & EFFECTS
+   ======================================== */
+
+/* Enhanced Shadow System - Multi-tier elevation */
+.shadow-subtle {
+  box-shadow:
+    0 1px 2px 0 rgb(0 0 0 / 0.05),
+    0 1px 3px 0 rgb(0 0 0 / 0.03);
+}
+
+.shadow-soft {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.07),
+    0 2px 4px -1px rgb(0 0 0 / 0.03),
+    inset 0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+.shadow-elevated {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.08),
+    0 4px 6px -2px rgb(0 0 0 / 0.03),
+    inset 0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+.shadow-floating {
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.10),
+    0 10px 10px -5px rgb(0 0 0 / 0.04),
+    inset 0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+/* Dark mode shadows with colored glow */
+.dark .shadow-glow {
+  box-shadow:
+    0 0 15px oklch(0.75 0.14 50 / 0.15),
+    0 4px 6px -1px rgb(0 0 0 / 0.3);
+}
+
+/* Glassmorphism Effects */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.dark .glass-effect {
+  background: rgba(20, 20, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+}
+
+.dark .glass-card {
+  background: rgba(20, 20, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Animated Gradient Background */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.gradient-animated {
+  background: linear-gradient(
+    -45deg,
+    oklch(0.92 0.01 100),
+    oklch(0.95 0.02 110),
+    oklch(0.90 0.03 95),
+    oklch(0.93 0.01 105)
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.dark .gradient-animated {
+  background: linear-gradient(
+    -45deg,
+    oklch(0.12 0 0),
+    oklch(0.15 0.02 50),
+    oklch(0.10 0.03 40),
+    oklch(0.13 0.01 45)
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, oklch(0.45 0.15 145), oklch(0.65 0.18 60));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(135deg, oklch(0.75 0.14 50), oklch(0.85 0.16 70));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient Border Effect */
+.gradient-border {
+  position: relative;
+  background: var(--card);
+  border-radius: 12px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(135deg, oklch(0.45 0.15 145), oklch(0.65 0.18 60));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Button Ripple Effect */
+@keyframes ripple {
+  to {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Enhanced Shimmer for Skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--accent) 50%,
+    var(--muted) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Icon Animations */
+.icon-spin-hover:hover {
+  animation: spin 0.5s ease-in-out;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-bounce {
+  animation: bounce-icon 1s infinite;
+}
+
+@keyframes bounce-icon {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.icon-pulse {
+  animation: pulse-icon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Slide Up Fade Animation */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-fade {
+  animation: slideUpFade 0.5s ease-out;
+}
+
+/* Scale In Animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Shake Animation for Errors */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Hover Lift Utility */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+}
+
+/* Smooth Shadow Transition */
+.smooth-shadow {
+  transition: box-shadow 0.3s ease;
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Student Lecture Viewer Styles */
 .student-lecture-readonly {
   color: oklch(0.145 0 0);
