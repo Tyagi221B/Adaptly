@@ -44,7 +44,8 @@ export default function AIChatAssistant({
       content: input.trim(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
@@ -55,7 +56,7 @@ export default function AIChatAssistant({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: userMessage.content,
+          messages: updatedMessages,
           lectureContent,
           lectureTitle,
         }),

@@ -15,29 +15,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { question, lectureContent, lectureTitle } = await req.json();
+    const { messages, lectureContent, lectureTitle } = await req.json();
 
-    if (!question || !lectureContent) {
+    if (!messages || !Array.isArray(messages) || messages.length === 0 || !lectureContent) {
       return NextResponse.json(
-        { success: false, error: "Question and lecture content are required" },
+        { success: false, error: "Messages and lecture content are required" },
         { status: 400 }
       );
     }
 
-    const prompt = `You are an AI teaching assistant helping a student understand their lecture material.
+    const systemMessage = {
+      role: "system" as const,
+      content: `You are an AI teaching assistant helping a student understand their lecture material.
 
 Lecture Title: ${lectureTitle || "Current Lecture"}
 
 Lecture Content:
 ${lectureContent}
 
-Student Question: ${question}
-
-Please provide a clear, concise, and helpful answer based on the lecture content. If the question is outside the scope of the lecture, politely guide the student back to the lecture topics.`;
+Please provide clear, concise, and helpful answers based on the lecture content. If questions are outside the scope of the lecture, politely guide the student back to the lecture topics.`,
+    };
 
     const result = await generateText({
       model: groq("llama-3.3-70b-versatile"),
-      prompt: prompt,
+      system: systemMessage.content,
+      messages: messages.map((msg: { role: "user" | "assistant"; content: string }) => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      })),
       temperature: 0.7,
     });
 
