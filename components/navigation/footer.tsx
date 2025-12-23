@@ -15,7 +15,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-t bg-background">
+    <footer className="border-t bg-linear-to-b from-[#e6e5dd] to-[#ddd9d0] dark:from-background dark:to-background">
       <div className="container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           <div className="space-y-4">
