@@ -55,29 +55,28 @@ export default async function StudentDashboard() {
         </p>
       </div>
 
-        {/* Stats */}
-        <div className="mb-8 grid gap-6 md:grid-cols-4">
+        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-xs font-medium sm:text-sm">
                 Enrolled Courses
               </CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalEnrollments}</div>
+              <div className="text-xl font-bold sm:text-2xl">{totalEnrollments}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-xs font-medium sm:text-sm">
                 Lectures Completed
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl font-bold sm:text-2xl">
                 {completedLectures}/{totalLectures}
               </div>
             </CardContent>
@@ -85,24 +84,24 @@ export default async function StudentDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-xs font-medium sm:text-sm">
                 Courses Completed
               </CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{completedCourses}</div>
+              <div className="text-xl font-bold sm:text-2xl">{completedCourses}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-xs font-medium sm:text-sm">
                 Overall Progress
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl font-bold sm:text-2xl">
                 {totalLectures > 0
                   ? Math.round((completedLectures / totalLectures) * 100)
                   : 0}

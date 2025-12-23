@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth-config";
 import { getCourseForStudent } from "@/actions/course.actions";
 import { getCourseLectures } from "@/actions/lecture.actions";
 import { getEnrollmentByCourseId } from "@/actions/enrollment.actions";
-import { CourseSidebar } from "@/components/student/course-sidebar";
+import { LectureLayoutWrapper } from "@/components/student/lecture-layout-wrapper";
 
 export default async function LectureLayout({
   children,
@@ -44,17 +44,13 @@ export default async function LectureLayout({
     : [];
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      <CourseSidebar
-        courseId={courseId}
-        courseTitle={courseResult.data.course.title}
-        lectures={lectures}
-        completedLectureIds={completedLectureIds}
-      />
-
-      <div className="flex-1 overflow-auto">
-        {children}
-      </div>
-    </div>
+    <LectureLayoutWrapper
+      courseId={courseId}
+      courseTitle={courseResult.data.course.title}
+      lectures={lectures}
+      completedLectureIds={completedLectureIds}
+    >
+      {children}
+    </LectureLayoutWrapper>
   );
 }
