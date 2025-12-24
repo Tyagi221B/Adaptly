@@ -71,6 +71,10 @@ export async function getMyEnrollments(
       courseTitle: string;
       courseDescription: string;
       courseCategory: string;
+      courseThumbnail?: string;
+      courseInstructorName: string;
+      courseAverageRating: number;
+      courseTotalReviews: number;
       enrolledAt: Date;
       totalLectures: number;
       completedLectures: number;
@@ -84,7 +88,13 @@ export async function getMyEnrollments(
     const enrollments = await Enrollment.find({
       studentId: new Types.ObjectId(studentId),
     })
-      .populate("courseId")
+      .populate({
+        path: "courseId",
+        populate: {
+          path: "instructorId",
+          select: "name",
+        },
+      })
       .sort({ enrolledAt: -1 })
       .lean();
 
@@ -95,6 +105,10 @@ export async function getMyEnrollments(
           title: string;
           description: string;
           category: string;
+          thumbnail?: string;
+          averageRating: number;
+          totalReviews: number;
+          instructorId: { name: string };
         };
 
         const totalLectures = await Lecture.countDocuments({
@@ -111,6 +125,10 @@ export async function getMyEnrollments(
           courseTitle: course.title,
           courseDescription: course.description,
           courseCategory: course.category,
+          courseThumbnail: course.thumbnail,
+          courseInstructorName: course.instructorId?.name || "Unknown",
+          courseAverageRating: course.averageRating || 0,
+          courseTotalReviews: course.totalReviews || 0,
           enrolledAt: enrollment.enrolledAt,
           totalLectures,
           completedLectures,
