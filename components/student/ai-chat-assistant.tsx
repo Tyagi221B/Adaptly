@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Send, Loader2, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Send, Loader2, Sparkles, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,6 +135,13 @@ export default function AIChatAssistant({
     }
   };
 
+  const handleClearChat = () => {
+    const storageKey = `ai-chat-messages-${lectureId}`;
+    localStorage.removeItem(storageKey);
+    setMessages([]);
+    toast.success("Chat cleared");
+  };
+
   // Sidebar Mode (Desktop)
   if (mode === "sidebar") {
     if (isCollapsed) {
@@ -164,15 +171,26 @@ export default function AIChatAssistant({
             <Sparkles className="h-5 w-5 text-primary" />
             <h3 className="text-sm font-semibold">AI Assistant</h3>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(true)}
-            className="h-8 w-8 p-0 hover:bg-muted"
-            title="Collapse sidebar"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearChat}
+              className="h-8 w-8 p-0 hover:bg-muted"
+              title="Clear chat"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCollapsed(true)}
+              className="h-8 w-8 p-0 hover:bg-muted"
+              title="Collapse sidebar"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Messages Area - Scrollable */}
@@ -276,14 +294,25 @@ export default function AIChatAssistant({
               <Sparkles className="h-5 w-5 text-primary" />
               AI Assistant
             </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearChat}
+                className="h-8 w-8 p-0"
+                title="Clear chat"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <ScrollArea className="h-96 pr-4" ref={scrollAreaRef}>
