@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -20,6 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { NextLectureButton } from "@/components/student/next-lecture-button";
+import AIChatAssistant from "@/components/student/ai-chat-assistant";
 
 export default async function QuizResultPage({
   params,
@@ -93,19 +94,58 @@ export default async function QuizResultPage({
     }
   }
 
+  // Build enhanced context for AI chat
+  const correctCount = attempt.answers.filter((a) => a.isCorrect).length;
+  const totalQuestions = attempt.quiz.questions.length;
+
+  const enhancedContext = `# LECTURE CONTENT
+
+${attempt.lecture.content}
+
+---
+
+# QUIZ RESULTS SUMMARY
+
+**Score:** ${attempt.score}% (${correctCount}/${totalQuestions} correct)
+**Status:** ${attempt.passed ? 'PASSED ✓' : 'NOT PASSED'}
+**Passing Score:** ${attempt.quiz.passingScore}%
+
+---
+
+# QUESTIONS YOU GOT WRONG
+
+${wrongAnswers.length > 0
+  ? wrongAnswers.map((q, i) => `
+**Question ${i + 1}:** ${q.questionText}
+- **Your Answer:** ${q.studentAnswer}
+- **Correct Answer:** ${q.correctAnswer}
+- **Explanation:** ${q.explanation || 'No explanation provided'}
+`).join('\n')
+  : 'Perfect score! You got all questions correct! 🎉'}
+
+---
+
+# AI REMEDIAL FEEDBACK ALREADY PROVIDED
+
+${remedialContent || 'No additional feedback needed - great job!'}
+
+---
+
+You are helping the student understand their quiz performance. They may ask:
+- Why certain answers were wrong
+- Clarification on concepts they missed
+- Additional examples or practice questions
+- How to improve for next time`;
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-4xl py-8 px-4">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-6">
-          <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Lecture
-          </Link>
-        </Button>
-
-        {/* Score Card */}
-        <Card className="mb-8">
+      <div className="container mx-auto max-w-7xl py-8 px-4">
+        {/* Flex Container: Content + AI Sidebar */}
+        <div className="flex gap-6">
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            {/* Score Card */}
+            <Card className="mb-8">
           <CardHeader>
             <CardTitle>Quiz Results</CardTitle>
             <CardDescription>{attempt.lecture.title}</CardDescription>
@@ -277,26 +317,48 @@ export default async function QuizResultPage({
           </CardContent>
         </Card>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button asChild variant="outline" className="w-full sm:flex-1">
-            <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
-              Back to Lecture
-            </Link>
-          </Button>
-          {!attempt.passed ? (
-            <Button asChild className="w-full sm:flex-1">
-              <Link href={`/student/courses/${courseId}/lectures/${lectureId}/quiz`}>
-                Retake Quiz
-              </Link>
-            </Button>
-          ) : nextLecture ? (
-            <NextLectureButton
-              courseId={courseId}
-              lectureId={nextLecture._id}
-              className="w-full sm:flex-1"
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild variant="outline" className="w-full sm:flex-1">
+                <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
+                  Back to Lecture
+                </Link>
+              </Button>
+              {!attempt.passed ? (
+                <Button asChild className="w-full sm:flex-1">
+                  <Link href={`/student/courses/${courseId}/lectures/${lectureId}/quiz`}>
+                    Retake Quiz
+                  </Link>
+                </Button>
+              ) : nextLecture ? (
+                <NextLectureButton
+                  courseId={courseId}
+                  lectureId={nextLecture._id}
+                  className="w-full sm:flex-1"
+                />
+              ) : null}
+            </div>
+          </div>
+
+          {/* AI Sidebar - Desktop Only */}
+          <div className="hidden lg:block w-96 shrink-0">
+            <AIChatAssistant
+              lectureContent={enhancedContext}
+              lectureTitle={`${attempt.lecture.title} - Quiz Results`}
+              lectureId={lectureId}
+              mode="sidebar"
             />
-          ) : null}
+          </div>
+        </div>
+
+        {/* AI Floating Button - Mobile Only */}
+        <div className="lg:hidden">
+          <AIChatAssistant
+            lectureContent={enhancedContext}
+            lectureTitle={`${attempt.lecture.title} - Quiz Results`}
+            lectureId={lectureId}
+            mode="floating"
+          />
         </div>
       </div>
     </div>
