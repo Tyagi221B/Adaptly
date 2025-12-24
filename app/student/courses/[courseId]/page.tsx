@@ -15,6 +15,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import EnrollButton from "@/components/student/enroll-button";
+import { ReviewForm } from "@/components/student/review-form";
+import { ReviewsList } from "@/components/student/reviews-list";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function StudentCourseDetailPage({
   params,
@@ -181,6 +185,35 @@ export default async function StudentCourseDetailPage({
             </CardContent>
           </Card>
         )}
+
+        {/* Reviews Section */}
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          {/* Write Review (only for enrolled students) */}
+          {enrolled && (
+            <div>
+              <ReviewForm
+                courseId={courseId}
+                studentId={session.user.id}
+                courseName={course.title}
+              />
+            </div>
+          )}
+
+          {/* All Reviews */}
+          <div className={enrolled ? "" : "lg:col-span-2"}>
+            <Suspense
+              fallback={
+                <Card>
+                  <CardContent className="py-8">
+                    <Skeleton className="h-20 w-full" />
+                  </CardContent>
+                </Card>
+              }
+            >
+              <ReviewsList courseId={courseId} />
+            </Suspense>
+          </div>
+        </div>
       </div>
     </div>
   );

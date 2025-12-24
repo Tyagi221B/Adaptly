@@ -24,6 +24,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { deleteCourse } from "@/actions/course.actions";
 import { useSession } from "next-auth/react";
+import { StarRating } from "@/components/ui/star-rating";
 
 interface CourseCardProps {
   course: {
@@ -34,6 +35,8 @@ interface CourseCardProps {
     isPublished: boolean;
     lectureCount: number;
     thumbnail?: string;
+    averageRating?: number;
+    totalReviews?: number;
     createdAt: Date;
   };
 }
@@ -143,19 +146,35 @@ export default function CourseCard({ course }: CourseCardProps) {
       </CardHeader>
 
       <CardContent>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant="secondary"
-            className={categoryColors[course.category] || categoryColors.other}
-          >
-            {course.category.replace("-", " ")}
-          </Badge>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="secondary"
+              className={categoryColors[course.category] || categoryColors.other}
+            >
+              {course.category.replace("-", " ")}
+            </Badge>
 
-          {course.isPublished ? (
-            <Badge variant="default">Published</Badge>
-          ) : (
-            <Badge variant="outline">Draft</Badge>
-          )}
+            {course.isPublished ? (
+              <Badge variant="default">Published</Badge>
+            ) : (
+              <Badge variant="outline">Draft</Badge>
+            )}
+          </div>
+
+          {/* Rating */}
+          {course.totalReviews && course.totalReviews > 0 ? (
+            <div className="flex items-center gap-2">
+              <StarRating
+                rating={course.averageRating || 0}
+                readonly
+                size="sm"
+              />
+              <span className="text-sm text-muted-foreground">
+                ({course.totalReviews})
+              </span>
+            </div>
+          ) : null}
         </div>
       </CardContent>
 

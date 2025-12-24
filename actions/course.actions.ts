@@ -62,6 +62,8 @@ export async function getMyCourses(instructorId: string) {
           description: course.description,
           category: course.category,
           thumbnail: course.thumbnail,
+          averageRating: course.averageRating,
+          totalReviews: course.totalReviews,
           isPublished: course.isPublished,
           lectureCount,
           createdAt: course.createdAt,
