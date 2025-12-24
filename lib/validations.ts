@@ -51,6 +51,11 @@ export const CreateCourseSchema = z.object({
     .max(500, "Description cannot exceed 500 characters")
     .transform((val) => val.trim()),
   category: z.enum(courseCategories),
+  thumbnail: z.string().url().optional(),
+  instructorMessage: z
+    .string()
+    .max(2000, "Instructor message cannot exceed 2000 characters")
+    .optional(),
 });
 
 export const UpdateCourseSchema = CreateCourseSchema.partial();

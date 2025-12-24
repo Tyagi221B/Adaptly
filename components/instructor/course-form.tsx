@@ -26,6 +26,7 @@ import {
 import { CreateCourseSchema } from "@/lib/validations";
 import type { CreateCourseInput } from "@/lib/validations";
 import { createCourse, updateCourse } from "@/actions/course.actions";
+import { ImageUpload } from "@/components/instructor/image-upload";
 
 interface CourseFormProps {
   instructorId: string;
@@ -34,6 +35,8 @@ interface CourseFormProps {
     title: string;
     description: string;
     category: CreateCourseInput["category"];
+    thumbnail?: string;
+    instructorMessage?: string;
   };
 }
 
@@ -64,10 +67,13 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
       title: "",
       description: "",
       category: "programming",
+      thumbnail: "",
+      instructorMessage: "",
     },
   });
 
   const selectedCategory = useWatch({ control, name: "category" });
+  const thumbnailValue = useWatch({ control, name: "thumbnail" });
 
   const onSubmit = async (data: CreateCourseInput) => {
     setIsLoading(true);
@@ -163,6 +169,39 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             </Select>
             {errors.category && (
               <p className="text-sm text-red-500">{errors.category.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Course Thumbnail</Label>
+            <ImageUpload
+              value={thumbnailValue}
+              onChange={(url) => setValue("thumbnail", url)}
+              onRemove={() => setValue("thumbnail", "")}
+            />
+            {errors.thumbnail && (
+              <p className="text-sm text-red-500">{errors.thumbnail.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="instructorMessage">
+              Message from Instructor (Optional)
+            </Label>
+            <Textarea
+              id="instructorMessage"
+              placeholder="Write a personal message to students about this course..."
+              rows={4}
+              {...register("instructorMessage")}
+              disabled={isLoading}
+            />
+            <p className="text-xs text-muted-foreground">
+              This message will be displayed on the course detail page
+            </p>
+            {errors.instructorMessage && (
+              <p className="text-sm text-red-500">
+                {errors.instructorMessage.message}
+              </p>
             )}
           </div>
 

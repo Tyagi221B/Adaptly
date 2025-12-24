@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { MoreVertical, BookOpen, Edit, Trash2, Loader2 } from "lucide-react";
+import { MoreVertical, BookOpen, Edit, Trash2, Loader2, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,6 +33,7 @@ interface CourseCardProps {
     category: string;
     isPublished: boolean;
     lectureCount: number;
+    thumbnail?: string;
     createdAt: Date;
   };
 }
@@ -79,7 +81,23 @@ export default function CourseCard({ course }: CourseCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+      {/* Thumbnail */}
+      <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5">
+        {course.thumbnail ? (
+          <Image
+            src={course.thumbnail}
+            alt={course.title}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+          </div>
+        )}
+      </div>
+
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
