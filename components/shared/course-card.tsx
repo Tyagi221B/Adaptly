@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Star, BookOpen, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { enrollInCourse } from "@/actions/enrollment.actions";
-import { toast } from "sonner";
 
 interface CourseData {
   _id: string;
@@ -54,30 +50,6 @@ const categoryColors: Record<string, string> = {
 };
 
 export function CourseCard({ course, variant, enrollmentData, studentId }: CourseCardProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [isEnrolling, setIsEnrolling] = useState(false);
-
-  const handleEnroll = async () => {
-    if (!studentId) {
-      toast.error("Please log in to enroll");
-      return;
-    }
-
-    setIsEnrolling(true);
-    startTransition(async () => {
-      const result = await enrollInCourse(studentId, course._id);
-
-      if (result.success) {
-        toast.success("Enrolled successfully!");
-        router.refresh();
-      } else {
-        toast.error(result.error || "Failed to enroll");
-      }
-      setIsEnrolling(false);
-    });
-  };
-
   const renderCTA = () => {
     if (variant === "featured") {
       return (
@@ -91,12 +63,10 @@ export function CourseCard({ course, variant, enrollmentData, studentId }: Cours
 
     if (variant === "available") {
       return (
-        <Button
-          onClick={handleEnroll}
-          disabled={isPending || isEnrolling}
-          className="w-full"
-        >
-          {isEnrolling ? "Enrolling..." : "Enroll Now"}
+        <Button asChild className="w-full">
+          <Link href={`/courses/${course._id}`}>
+            View Details
+          </Link>
         </Button>
       );
     }
