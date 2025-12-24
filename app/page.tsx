@@ -26,6 +26,7 @@ import {
 import CountUp from "react-countup";
 import { getFeaturedCourses } from "@/actions/course.actions";
 import { CourseCard } from "@/components/shared/course-card";
+import { Footer } from "@/components/navigation/footer";
 
 export default function Home() {
   return (
@@ -50,6 +51,9 @@ export default function Home() {
 
       {/* FINAL CTA */}
       <CTASection />
+
+      {/* FOOTER */}
+      <Footer />
     </div>
   );
 }
