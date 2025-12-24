@@ -6,18 +6,66 @@ import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
 import { CreateCourseSchema, UpdateCourseSchema } from "@/lib/validations";
 import type { CreateCourseInput, UpdateCourseInput } from "@/lib/validations";
+import { deleteImage, uploadImage } from "@/lib/cloudinary";
 
-export async function createCourse(instructorId: string, data: CreateCourseInput) {
+export async function createCourse(formData: FormData) {
   try {
+    console.log("[CREATE COURSE] Starting...");
+    const instructorId = formData.get("instructorId") as string;
+    const thumbnailFile = formData.get("thumbnailFile") as File | null;
+
+    console.log("[CREATE COURSE] Instructor ID:", instructorId);
+    console.log("[CREATE COURSE] Thumbnail file:", thumbnailFile ? `Yes (${thumbnailFile.size} bytes, ${thumbnailFile.type})` : "No");
+
+    const data: CreateCourseInput = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      category: formData.get("category") as CreateCourseInput["category"],
+      instructorMessage: formData.get("instructorMessage") as string,
+    };
+
     const validatedData = CreateCourseSchema.parse(data);
 
     await dbConnect();
 
+    let thumbnailUrl: string | undefined;
+    let thumbnailPublicId: string | undefined;
+
+    // If thumbnail file provided, upload to Cloudinary
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      console.log("[CREATE COURSE] Converting file to base64...");
+      const bytes = await thumbnailFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = `data:${thumbnailFile.type};base64,${buffer.toString("base64")}`;
+
+      console.log("[CREATE COURSE] Uploading to Cloudinary...");
+      const result = await uploadImage(base64, "adaptly/courses");
+
+      console.log("[CREATE COURSE] Upload result:", result);
+
+      if (result.success) {
+        thumbnailUrl = result.url;
+        thumbnailPublicId = result.publicId;
+        console.log("[CREATE COURSE] Thumbnail uploaded successfully!");
+      } else {
+        console.error("[CREATE COURSE] Upload failed:", result.error);
+      }
+    } else {
+      console.log("[CREATE COURSE] No thumbnail file to upload");
+    }
+
     const course = await Course.create({
       ...validatedData,
+      thumbnail: thumbnailUrl,
+      thumbnailPublicId,
       instructorId,
       isPublished: false,
     });
+
+    console.log("[CREATE COURSE] Course created in DB:");
+    console.log("[CREATE COURSE] - ID:", course._id.toString());
+    console.log("[CREATE COURSE] - Thumbnail URL:", course.thumbnail);
+    console.log("[CREATE COURSE] - Thumbnail Public ID:", course.thumbnailPublicId);
 
     return {
       success: true,
@@ -113,6 +161,7 @@ export async function getCourseById(courseId: string, instructorId: string) {
           description: course.description,
           category: course.category,
           thumbnail: course.thumbnail,
+          thumbnailPublicId: course.thumbnailPublicId,
           instructorMessage: course.instructorMessage,
           isPublished: course.isPublished,
           createdAt: course.createdAt,
@@ -133,19 +182,92 @@ export async function getCourseById(courseId: string, instructorId: string) {
   }
 }
 
-export async function updateCourse(
-  courseId: string,
-  instructorId: string,
-  data: UpdateCourseInput
-) {
+export async function updateCourse(formData: FormData) {
   try {
+    console.log("[UPDATE COURSE] Starting...");
+    const courseId = formData.get("courseId") as string;
+    const instructorId = formData.get("instructorId") as string;
+    const thumbnailFile = formData.get("thumbnailFile") as File | null;
+    const removeThumbnail = formData.get("removeThumbnail") === "true";
+
+    console.log("[UPDATE COURSE] Course ID:", courseId);
+    console.log("[UPDATE COURSE] Instructor ID:", instructorId);
+    console.log("[UPDATE COURSE] Thumbnail file:", thumbnailFile ? `Yes (${thumbnailFile.size} bytes, ${thumbnailFile.type})` : "No");
+    console.log("[UPDATE COURSE] Remove thumbnail flag:", removeThumbnail);
+
+    const data: UpdateCourseInput = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      category: formData.get("category") as CreateCourseInput["category"],
+      instructorMessage: formData.get("instructorMessage") as string,
+    };
+
     const validatedData = UpdateCourseSchema.parse(data);
 
     await dbConnect();
 
+    const existingCourse = await Course.findOne({ _id: courseId, instructorId });
+
+    if (!existingCourse) {
+      return {
+        success: false,
+        error: "Course not found or you don't have access",
+      };
+    }
+
+    console.log("[UPDATE COURSE] Existing thumbnail:", existingCourse.thumbnail);
+    console.log("[UPDATE COURSE] Existing publicId:", existingCourse.thumbnailPublicId);
+
+    let thumbnailUrl = existingCourse.thumbnail;
+    let thumbnailPublicId = existingCourse.thumbnailPublicId;
+
+    // If new thumbnail file provided
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      console.log("[UPDATE COURSE] New thumbnail file detected");
+
+      // Delete old Cloudinary image if exists
+      if (existingCourse.thumbnailPublicId) {
+        console.log("[UPDATE COURSE] Deleting old image from Cloudinary:", existingCourse.thumbnailPublicId);
+        await deleteImage(existingCourse.thumbnailPublicId);
+      }
+
+      // Upload new file to Cloudinary
+      console.log("[UPDATE COURSE] Converting new file to base64...");
+      const bytes = await thumbnailFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = `data:${thumbnailFile.type};base64,${buffer.toString("base64")}`;
+
+      console.log("[UPDATE COURSE] Uploading new file to Cloudinary...");
+      const result = await uploadImage(base64, "adaptly/courses");
+
+      console.log("[UPDATE COURSE] Upload result:", result);
+
+      if (result.success) {
+        thumbnailUrl = result.url;
+        thumbnailPublicId = result.publicId;
+        console.log("[UPDATE COURSE] New thumbnail uploaded successfully!");
+      } else {
+        console.error("[UPDATE COURSE] Upload failed:", result.error);
+      }
+    }
+    // If thumbnail is being removed
+    else if (removeThumbnail && existingCourse.thumbnailPublicId) {
+      console.log("[UPDATE COURSE] Removing thumbnail");
+      await deleteImage(existingCourse.thumbnailPublicId);
+      thumbnailUrl = undefined;
+      thumbnailPublicId = undefined;
+      console.log("[UPDATE COURSE] Thumbnail removed");
+    } else {
+      console.log("[UPDATE COURSE] No thumbnail changes");
+    }
+
     const course = await Course.findOneAndUpdate(
       { _id: courseId, instructorId },
-      validatedData,
+      {
+        ...validatedData,
+        thumbnail: thumbnailUrl,
+        thumbnailPublicId,
+      },
       { new: true, runValidators: true }
     );
 
@@ -155,6 +277,11 @@ export async function updateCourse(
         error: "Course not found or you don't have access",
       };
     }
+
+    console.log("[UPDATE COURSE] Course updated in DB:");
+    console.log("[UPDATE COURSE] - ID:", course._id.toString());
+    console.log("[UPDATE COURSE] - Thumbnail URL:", course.thumbnail);
+    console.log("[UPDATE COURSE] - Thumbnail Public ID:", course.thumbnailPublicId);
 
     return {
       success: true,
@@ -182,8 +309,8 @@ export async function deleteCourse(courseId: string, instructorId: string) {
   try {
     await dbConnect();
 
-    // Delete course
-    const course = await Course.findOneAndDelete({
+    // Get the course first to access thumbnailPublicId
+    const course = await Course.findOne({
       _id: courseId,
       instructorId,
     });
@@ -194,6 +321,14 @@ export async function deleteCourse(courseId: string, instructorId: string) {
         error: "Course not found or you don't have access",
       };
     }
+
+    // Delete thumbnail from Cloudinary if it exists
+    if (course.thumbnailPublicId) {
+      await deleteImage(course.thumbnailPublicId);
+    }
+
+    // Delete course
+    await Course.deleteOne({ _id: courseId, instructorId });
 
     // Delete all lectures associated with this course
     await Lecture.deleteMany({ courseId });
@@ -268,6 +403,7 @@ export async function getCourseForStudent(courseId: string) {
           description: course.description,
           category: course.category,
           thumbnail: course.thumbnail,
+          thumbnailPublicId: course.thumbnailPublicId,
           instructorMessage: course.instructorMessage,
           isPublished: course.isPublished,
           createdAt: course.createdAt,

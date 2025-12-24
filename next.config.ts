@@ -69,6 +69,10 @@ const nextConfig: NextConfig = {
   experimental: {
     // Enable modern JavaScript output
     optimizePackageImports: ["lucide-react", "@radix-ui/react-icons"],
+    // Server Actions body size limit (for image uploads)
+    serverActions: {
+      bodySizeLimit: "6mb", // Allow up to 6MB for image uploads
+    },
   },
 };
 

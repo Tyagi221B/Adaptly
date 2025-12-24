@@ -48,8 +48,8 @@ export default async function EditCoursePage({
             title: course.title,
             description: course.description,
             category: course.category,
-            thumbnail: course.thumbnail || "",
-            instructorMessage: course.instructorMessage || "",
+            thumbnail: course.thumbnail,
+            instructorMessage: course.instructorMessage,
           }}
         />
       </div>

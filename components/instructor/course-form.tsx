@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreateCourseSchema } from "@/lib/validations";
 import type { CreateCourseInput } from "@/lib/validations";
 import { createCourse, updateCourse } from "@/actions/course.actions";
 import { ImageUpload } from "@/components/instructor/image-upload";
@@ -55,34 +52,48 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
   const [isLoading, setIsLoading] = useState(false);
   const isEditMode = !!courseId && !!initialData;
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    control,
-  } = useForm<CreateCourseInput>({
-    resolver: zodResolver(CreateCourseSchema),
-    defaultValues: initialData || {
-      title: "",
-      description: "",
-      category: "programming",
-      thumbnail: "",
-      instructorMessage: "",
-    },
-  });
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [removeThumbnail, setRemoveThumbnail] = useState(false);
 
-  const selectedCategory = useWatch({ control, name: "category" });
-  const thumbnailValue = useWatch({ control, name: "thumbnail" });
-
-  const onSubmit = async (data: CreateCourseInput) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
+      console.log("[FORM] Submitting form...");
+      console.log("[FORM] Edit mode:", isEditMode);
+      console.log("[FORM] Thumbnail file:", thumbnailFile ? `${thumbnailFile.name} (${thumbnailFile.size} bytes)` : "None");
+      console.log("[FORM] Remove thumbnail:", removeThumbnail);
+
+      const formData = new FormData(e.currentTarget);
+
+      // Add thumbnail file if exists
+      if (thumbnailFile) {
+        console.log("[FORM] Appending thumbnail file to FormData");
+        formData.append("thumbnailFile", thumbnailFile);
+      }
+
+      // Add remove thumbnail flag
+      if (removeThumbnail) {
+        console.log("[FORM] Appending remove thumbnail flag");
+        formData.append("removeThumbnail", "true");
+      }
+
+      // Add instructor ID
+      formData.append("instructorId", instructorId);
+
+      // Add course ID for edit mode
+      if (isEditMode) {
+        formData.append("courseId", courseId!);
+      }
+
+      console.log("[FORM] Calling server action...");
       const result = isEditMode
-        ? await updateCourse(courseId!, instructorId, data)
-        : await createCourse(instructorId, data);
+        ? await updateCourse(formData)
+        : await createCourse(formData);
+
+      console.log("[FORM] Server action result:", result);
 
       if (!result.success) {
         setError(result.error || `Failed to ${isEditMode ? "update" : "create"} course`);
@@ -92,8 +103,10 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
 
       // Redirect to course detail page
       const targetCourseId = isEditMode ? courseId : result.data?.courseId;
+      console.log("[FORM] Redirecting to:", `/instructor/courses/${targetCourseId}`);
       router.push(`/instructor/courses/${targetCourseId}`);
-    } catch {
+    } catch (err) {
+      console.error("[FORM] Submission error:", err);
       setError("Something went wrong. Please try again.");
       setIsLoading(false);
     }
@@ -110,21 +123,22 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">
               Course Title <span className="text-red-500">*</span>
             </Label>
             <Input
               id="title"
+              name="title"
               type="text"
               placeholder="e.g., Introduction to React"
-              {...register("title")}
+              defaultValue={initialData?.title}
               disabled={isLoading}
+              required
+              minLength={3}
+              maxLength={100}
             />
-            {errors.title && (
-              <p className="text-sm text-red-500">{errors.title.message}</p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -133,16 +147,15 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             </Label>
             <Textarea
               id="description"
+              name="description"
               placeholder="Describe what students will learn in this course..."
               rows={4}
-              {...register("description")}
+              defaultValue={initialData?.description}
               disabled={isLoading}
+              required
+              minLength={10}
+              maxLength={500}
             />
-            {errors.description && (
-              <p className="text-sm text-red-500">
-                {errors.description.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -150,10 +163,8 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
               Category <span className="text-red-500">*</span>
             </Label>
             <Select
-              value={selectedCategory}
-              onValueChange={(value) =>
-                setValue("category", value as CreateCourseInput["category"])
-              }
+              name="category"
+              defaultValue={initialData?.category || "programming"}
               disabled={isLoading}
             >
               <SelectTrigger id="category">
@@ -167,21 +178,21 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
                 ))}
               </SelectContent>
             </Select>
-            {errors.category && (
-              <p className="text-sm text-red-500">{errors.category.message}</p>
-            )}
           </div>
 
           <div className="space-y-2">
             <Label>Course Thumbnail</Label>
             <ImageUpload
-              value={thumbnailValue}
-              onChange={(url) => setValue("thumbnail", url)}
-              onRemove={() => setValue("thumbnail", "")}
+              value={initialData?.thumbnail}
+              onChange={(file) => {
+                setThumbnailFile(file);
+                setRemoveThumbnail(false);
+              }}
+              onRemove={() => {
+                setThumbnailFile(null);
+                setRemoveThumbnail(true);
+              }}
             />
-            {errors.thumbnail && (
-              <p className="text-sm text-red-500">{errors.thumbnail.message}</p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -190,19 +201,16 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             </Label>
             <Textarea
               id="instructorMessage"
+              name="instructorMessage"
               placeholder="Write a personal message to students about this course..."
               rows={4}
-              {...register("instructorMessage")}
+              defaultValue={initialData?.instructorMessage}
               disabled={isLoading}
+              maxLength={2000}
             />
             <p className="text-xs text-muted-foreground">
               This message will be displayed on the course detail page
             </p>
-            {errors.instructorMessage && (
-              <p className="text-sm text-red-500">
-                {errors.instructorMessage.message}
-              </p>
-            )}
           </div>
 
           {error && (

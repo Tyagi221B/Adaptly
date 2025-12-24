@@ -7,6 +7,7 @@ export interface ICourse extends Document {
   description: string;
   category: string;
   thumbnail?: string;
+  thumbnailPublicId?: string;
   isPublished: boolean;
   enrolledStudentsCount: number;
   instructorMessage?: string;
@@ -54,6 +55,10 @@ const CourseSchema = new Schema<ICourse>(
       },
     },
     thumbnail: {
+      type: String,
+      default: null,
+    },
+    thumbnailPublicId: {
       type: String,
       default: null,
     },
