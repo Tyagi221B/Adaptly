@@ -41,16 +41,21 @@ function LoadingBarInner() {
 
   // Complete loading when navigation finishes (pathname changes)
   useEffect(() => {
-    setIsLoading(true)
-    const timeout = setTimeout(() => setIsLoading(false), 500)
-    return () => clearTimeout(timeout)
+    // Queue the state update to avoid synchronous setState in effect
+    const startTimeout = setTimeout(() => setIsLoading(true), 0)
+    const endTimeout = setTimeout(() => setIsLoading(false), 500)
+
+    return () => {
+      clearTimeout(startTimeout)
+      clearTimeout(endTimeout)
+    }
   }, [pathname, searchParams])
 
   return (
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 dark:from-primary dark:via-primary/80 dark:to-primary z-50 origin-left shadow-[0_0_12px_rgba(59,130,246,0.5)] dark:shadow-glow"
+          className="fixed top-0 left-0 right-0 h-1.5 bg-linear-to-r from-blue-600 via-blue-500 to-blue-600 dark:from-primary dark:via-primary/80 dark:to-primary z-50 origin-left shadow-[0_0_12px_rgba(59,130,246,0.5)] dark:shadow-glow"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           exit={{ scaleX: 1, opacity: 0 }}

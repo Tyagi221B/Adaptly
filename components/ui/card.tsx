@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, children, ...props }: React.ComponentProps<"div">) {
+function Card({ className, children, ..._props }: React.ComponentProps<"div">) {
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = React.useState(false)
 

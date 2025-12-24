@@ -50,8 +50,8 @@ export function ReviewForm({
           setComment(result.data.comment || "");
           setExistingReviewId(result.data._id);
         }
-      } catch (error) {
-        console.error("Failed to fetch review:", error);
+      } catch (err) {
+        console.error("Failed to fetch review:", err);
       } finally {
         setIsFetching(false);
       }
@@ -86,7 +86,7 @@ export function ReviewForm({
       } else {
         toast.error(result.error || "Failed to submit review");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -112,7 +112,7 @@ export function ReviewForm({
       } else {
         toast.error(result.error || "Failed to delete review");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsDeleting(false);

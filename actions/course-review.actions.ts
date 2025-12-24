@@ -108,7 +108,16 @@ export async function getCourseReviews(
       .sort({ createdAt: -1 })
       .lean();
 
-    const formattedReviews = reviews.map((review: any) => ({
+    type PopulatedReview = {
+      _id: Types.ObjectId;
+      studentId: { _id: Types.ObjectId; name: string };
+      rating: number;
+      comment?: string;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+
+    const formattedReviews = (reviews as PopulatedReview[]).map((review) => ({
       _id: review._id.toString(),
       studentName: review.studentId?.name || "Anonymous",
       rating: review.rating,
