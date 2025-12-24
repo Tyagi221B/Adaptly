@@ -65,7 +65,11 @@ export async function submitQuizAttempt(
 
       return {
         questionIndex: answer.questionIndex,
+        questionText: question.questionText,
         selectedAnswerIndex: answer.selectedAnswerIndex,
+        selectedAnswerText: question.options[answer.selectedAnswerIndex],
+        correctAnswerIndex: question.correctAnswerIndex,
+        correctAnswerText: question.options[question.correctAnswerIndex],
         isCorrect,
       };
     });

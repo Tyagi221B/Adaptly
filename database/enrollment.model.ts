@@ -8,6 +8,14 @@ export interface IEnrollment extends Document {
   progress: {
     completedLectures: Types.ObjectId[];
     lastAccessedLecture?: Types.ObjectId;
+    completionPercentage: number;
+  };
+  lastActiveAt: Date;
+  quizPerformance: {
+    totalAttempts: number;
+    averageScore: number;
+    passedQuizzes: number;
+    totalQuizzes: number;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -41,6 +49,36 @@ const EnrollmentSchema = new Schema<IEnrollment>(
       lastAccessedLecture: {
         type: Schema.Types.ObjectId,
         ref: "Lecture",
+      },
+      completionPercentage: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+      },
+    },
+    lastActiveAt: {
+      type: Date,
+      default: Date.now,
+    },
+    quizPerformance: {
+      totalAttempts: {
+        type: Number,
+        default: 0,
+      },
+      averageScore: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+      },
+      passedQuizzes: {
+        type: Number,
+        default: 0,
+      },
+      totalQuizzes: {
+        type: Number,
+        default: 0,
       },
     },
   },

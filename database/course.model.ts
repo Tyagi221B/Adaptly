@@ -8,6 +8,10 @@ export interface ICourse extends Document {
   category: string;
   thumbnail?: string;
   isPublished: boolean;
+  enrolledStudentsCount: number;
+  instructorMessage?: string;
+  averageRating: number;
+  totalReviews: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +60,28 @@ const CourseSchema = new Schema<ICourse>(
     isPublished: {
       type: Boolean,
       default: false,
+    },
+    enrolledStudentsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    instructorMessage: {
+      type: String,
+      trim: true,
+      maxlength: [2000, "Instructor message cannot exceed 2000 characters"],
+      default: null,
+    },
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
   },
   {

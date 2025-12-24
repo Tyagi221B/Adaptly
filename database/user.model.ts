@@ -7,6 +7,20 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: "student" | "instructor";
+  bio?: string;
+  profilePicture?: string;
+  linkedIn?: string;
+  github?: string;
+  stats: {
+    totalCoursesEnrolled?: number;
+    totalCoursesCompleted?: number;
+    totalQuizzesPassed?: number;
+    averageQuizScore?: number;
+    lastActiveAt?: Date;
+    totalCourses?: number;
+    totalStudentsEnrolled?: number;
+    totalPublishedCourses?: number;
+  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -45,6 +59,60 @@ const UserSchema = new Schema<IUser>(
         message: "Role must be either student or instructor",
       },
       default: "student",
+    },
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Bio cannot exceed 500 characters"],
+      default: null,
+    },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
+    linkedIn: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    github: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    stats: {
+      totalCoursesEnrolled: {
+        type: Number,
+        default: 0,
+      },
+      totalCoursesCompleted: {
+        type: Number,
+        default: 0,
+      },
+      totalQuizzesPassed: {
+        type: Number,
+        default: 0,
+      },
+      averageQuizScore: {
+        type: Number,
+        default: 0,
+      },
+      lastActiveAt: {
+        type: Date,
+        default: null,
+      },
+      totalCourses: {
+        type: Number,
+        default: 0,
+      },
+      totalStudentsEnrolled: {
+        type: Number,
+        default: 0,
+      },
+      totalPublishedCourses: {
+        type: Number,
+        default: 0,
+      },
     },
   },
   {

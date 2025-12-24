@@ -2,7 +2,11 @@ import { Schema, model, models, Document, Types } from "mongoose";
 
 export interface IStudentAnswer {
   questionIndex: number;
+  questionText: string;
   selectedAnswerIndex: number;
+  selectedAnswerText: string;
+  correctAnswerIndex: number;
+  correctAnswerText: string;
   isCorrect: boolean;
 }
 
@@ -16,6 +20,7 @@ export interface IQuizAttempt extends Document {
   score: number; // Percentage (0-100)
   passed: boolean;
   attemptedAt: Date;
+  remedialContentId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,8 +57,24 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
           type: Number,
           required: true,
         },
+        questionText: {
+          type: String,
+          required: true,
+        },
         selectedAnswerIndex: {
           type: Number,
+          required: true,
+        },
+        selectedAnswerText: {
+          type: String,
+          required: true,
+        },
+        correctAnswerIndex: {
+          type: Number,
+          required: true,
+        },
+        correctAnswerText: {
+          type: String,
           required: true,
         },
         isCorrect: {
@@ -75,6 +96,11 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
     attemptedAt: {
       type: Date,
       default: Date.now,
+    },
+    remedialContentId: {
+      type: Schema.Types.ObjectId,
+      ref: "RemedialContent",
+      default: null,
     },
   },
   {
