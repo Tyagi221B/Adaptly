@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -20,8 +20,12 @@ import { SignInSchema, SignInInput } from "@/lib/validations";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get redirect param from URL
+  const redirectTo = searchParams.get("redirect");
 
   const {
     register,
@@ -48,9 +52,12 @@ export default function LoginForm() {
         return;
       }
 
-      // Redirect to appropriate dashboard
-      // We'll get the role from session after login
-      router.push("/dashboard");
+      // Redirect to captured URL or default dashboard
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else {
+        router.push("/student/dashboard");
+      }
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -113,7 +120,10 @@ export default function LoginForm() {
           {/* Signup Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <a href="/signup" className="text-primary hover:underline">
+            <a
+              href={redirectTo ? `/signup?redirect=${encodeURIComponent(redirectTo)}` : "/signup"}
+              className="text-primary hover:underline"
+            >
               Sign up
             </a>
           </p>

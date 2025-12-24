@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -21,8 +21,12 @@ import { signUpWithCredentials } from "@/actions/auth.actions";
 
 export default function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // STEP 2A: Get redirect param from URL
+  const redirectTo = searchParams.get("redirect");
 
   const {
     register,
@@ -64,10 +68,15 @@ export default function SignupForm() {
         return;
       }
 
-      // Redirect based on role
-      if (data.role === "instructor") {
+      // STEP 2B: Redirect to captured URL or default dashboard
+      if (redirectTo) {
+        // If there's a redirect param, go there
+        router.push(redirectTo);
+      } else if (data.role === "instructor") {
+        // Default for instructors
         router.push("/instructor/dashboard");
       } else {
+        // Default for students
         router.push("/student/dashboard");
       }
     } catch {
@@ -163,7 +172,10 @@ export default function SignupForm() {
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <a href="/login" className="text-primary hover:underline">
+            <a
+              href={redirectTo ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login"}
+              className="text-primary hover:underline"
+            >
               Login
             </a>
           </p>

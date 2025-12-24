@@ -82,7 +82,7 @@ export function CourseCard({ course, variant, enrollmentData, studentId }: Cours
     if (variant === "featured") {
       return (
         <Button asChild className="w-full">
-          <Link href={`/student/courses/${course._id}`}>
+          <Link href={`/courses/${course._id}`}>
             View Details
           </Link>
         </Button>
@@ -104,7 +104,7 @@ export function CourseCard({ course, variant, enrollmentData, studentId }: Cours
     if (variant === "enrolled") {
       return (
         <Button asChild className="w-full">
-          <Link href={`/student/courses/${course._id}`}>
+          <Link href={`/courses/${course._id}`}>
             Continue Learning
           </Link>
         </Button>

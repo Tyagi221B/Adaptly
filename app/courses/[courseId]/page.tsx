@@ -34,7 +34,7 @@ export default async function StudentCourseDetailPage({
   const courseResult = await getCourseForStudent(courseId);
 
   if (!courseResult.success || !courseResult.data) {
-    redirect("/student/courses");
+    redirect("/");
   }
 
   const { course, lectures } = courseResult.data;
@@ -71,9 +71,9 @@ export default async function StudentCourseDetailPage({
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4">
         <Button variant="ghost" asChild className="mb-6">
-          <Link href="/student/courses">
+          <Link href="/">
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Catalog
+            Back to Home
           </Link>
         </Button>
 
@@ -133,7 +133,7 @@ export default async function StudentCourseDetailPage({
               {!session ? (
                 // Not logged in - Show "Sign Up to Enroll" with redirect param
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href={`/signup?redirect=/student/courses/${courseId}`}>
+                  <Link href={`/signup?redirect=/courses/${courseId}`}>
                     Sign Up to Enroll
                   </Link>
                 </Button>
