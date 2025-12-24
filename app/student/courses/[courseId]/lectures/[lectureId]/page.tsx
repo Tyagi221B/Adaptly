@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Types } from "mongoose";
-import { ChevronLeft } from "lucide-react";
 import MarkdownIt from "markdown-it";
 import type { Options } from "markdown-it/lib/index.mjs";
 import type { RenderRule } from "markdown-it/lib/renderer.mjs";
@@ -150,128 +149,142 @@ export default async function LectureViewerPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-4xl py-8 px-4">
-        <Button variant="ghost" asChild className="mb-6">
-          <Link href={`/student/courses/${courseId}`}>
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Course
-          </Link>
-        </Button>
-
-        {/* Lecture Content */}
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="mb-2 inline-block rounded-full bg-muted px-3 py-1 text-sm font-medium text-muted-foreground">
-              Lecture {lecture.order}
-            </div>
-            <CardTitle className="text-2xl">{lecture.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div
-              className="ProseMirror student-lecture-readonly"
-              dangerouslySetInnerHTML={{ __html: md.render(lecture.content) }}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Quiz Section */}
-        {quiz ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Quiz</CardTitle>
-              <CardDescription>
-                Test your understanding of this lecture
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {latestAttempt ? (
-                <div className="space-y-4">
-                  <div className="rounded-lg bg-muted p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="font-medium text-foreground">
-                        Your latest attempt:
-                      </span>
-                      <span
-                        className={`text-lg font-bold ${
-                          latestAttempt.passed
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {latestAttempt.score}%
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Status:{" "}
-                      {latestAttempt.passed ? (
-                        <span className="text-green-600">Passed ✓</span>
-                      ) : (
-                        <span className="text-red-600">
-                          Not Passed (passing score: {quiz.passingScore}%)
-                        </span>
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button asChild variant="outline" className="w-full sm:flex-1">
-                      <Link
-                        href={`/student/courses/${courseId}/lectures/${lectureId}/quiz-result/${latestAttempt._id}`}
-                      >
-                        View Results
-                      </Link>
-                    </Button>
-                    {!latestAttempt.passed ? (
-                      <QuizTaker
-                        quiz={quiz}
-                        lectureId={lectureId}
-                        courseId={courseId}
-                        studentId={session.user.id}
-                      />
-                    ) : nextLecture ? (
-                      <NextLectureButton
-                        courseId={courseId}
-                        lectureId={nextLecture._id}
-                        className="w-full sm:flex-1"
-                      />
-                    ) : null}
-                  </div>
+      <div className="container mx-auto max-w-7xl py-8 px-4">
+        {/* Flex Container: Content + AI Sidebar */}
+        <div className="flex gap-6">
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            {/* Lecture Content */}
+            <Card className="mb-8">
+              <CardHeader>
+                <div className="mb-2 inline-block rounded-full bg-muted px-3 py-1 text-sm font-medium text-muted-foreground">
+                  Lecture {lecture.order}
                 </div>
-              ) : (
-                <QuizTaker
-                  quiz={quiz}
-                  lectureId={lectureId}
-                  courseId={courseId}
-                  studentId={session.user.id}
+                <CardTitle className="text-2xl">{lecture.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div
+                  className="ProseMirror student-lecture-readonly"
+                  dangerouslySetInnerHTML={{ __html: md.render(lecture.content) }}
                 />
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>Complete This Lecture</CardTitle>
-              <CardDescription>
-                Mark this lecture as complete to track your progress
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MarkCompleteButton
-                studentId={session.user.id}
-                courseId={courseId}
-                lectureId={lectureId}
-                isCompleted={isLectureCompleted}
-                nextLectureId={nextLecture?._id}
-              />
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              </CardContent>
+            </Card>
 
-      <AIChatAssistant
-        lectureContent={lecture.content}
-        lectureTitle={lecture.title}
-      />
+            {/* Quiz Section */}
+            {quiz ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quiz</CardTitle>
+                  <CardDescription>
+                    Test your understanding of this lecture
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {latestAttempt ? (
+                    <div className="space-y-4">
+                      <div className="rounded-lg bg-muted p-4">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="font-medium text-foreground">
+                            Your latest attempt:
+                          </span>
+                          <span
+                            className={`text-lg font-bold ${
+                              latestAttempt.passed
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {latestAttempt.score}%
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Status:{" "}
+                          {latestAttempt.passed ? (
+                            <span className="text-green-600">Passed ✓</span>
+                          ) : (
+                            <span className="text-red-600">
+                              Not Passed (passing score: {quiz.passingScore}%)
+                            </span>
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <Button asChild variant="outline" className="w-full sm:flex-1">
+                          <Link
+                            href={`/student/courses/${courseId}/lectures/${lectureId}/quiz-result/${latestAttempt._id}`}
+                          >
+                            View Results
+                          </Link>
+                        </Button>
+                        {!latestAttempt.passed ? (
+                          <QuizTaker
+                            quiz={quiz}
+                            lectureId={lectureId}
+                            courseId={courseId}
+                            studentId={session.user.id}
+                          />
+                        ) : nextLecture ? (
+                          <NextLectureButton
+                            courseId={courseId}
+                            lectureId={nextLecture._id}
+                            className="w-full sm:flex-1"
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : (
+                    <QuizTaker
+                      quiz={quiz}
+                      lectureId={lectureId}
+                      courseId={courseId}
+                      studentId={session.user.id}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Complete This Lecture</CardTitle>
+                  <CardDescription>
+                    Mark this lecture as complete to track your progress
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MarkCompleteButton
+                    studentId={session.user.id}
+                    courseId={courseId}
+                    lectureId={lectureId}
+                    isCompleted={isLectureCompleted}
+                    nextLectureId={nextLecture?._id}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* AI Sidebar - Desktop Only */}
+          <div className="hidden lg:block w-96 flex-shrink-0">
+            <AIChatAssistant
+              lectureContent={lecture.content}
+              lectureTitle={lecture.title}
+              lectureId={lectureId}
+              mode="sidebar"
+            />
+          </div>
+        </div>
+
+        {/* AI Floating Button - Mobile Only */}
+        <div className="lg:hidden">
+          <AIChatAssistant
+            lectureContent={lecture.content}
+            lectureTitle={lecture.title}
+            lectureId={lectureId}
+            mode="floating"
+          />
+        </div>
+      </div>
     </div>
   );
 }
