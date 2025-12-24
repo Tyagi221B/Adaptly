@@ -8,7 +8,6 @@ import { CategoryFilter } from "@/components/shared/category-filter";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StaggerGrid } from "@/components/ui/stagger-grid";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
 
 interface CourseData {
   _id: string;
@@ -72,110 +71,51 @@ export function DiscoverClient({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* HERO BANNER */}
-      <section className="relative overflow-hidden bg-linear-to-br from-primary/10 via-primary/5 to-background border-b">
-        {/* Animated Background Blobs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.div
-            animate={{
-              x: [0, 30, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, -30, 0],
-              y: [0, 20, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
-          />
-        </div>
-
-        <div className="container mx-auto px-4 py-16 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
+      {/* HERO SECTION */}
+      <section className="border-b bg-linear-to-b from-muted/30 to-background">
+        <div className="container mx-auto px-4 py-16 sm:py-24">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
             {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Badge className="px-4 py-2 text-sm font-medium" variant="secondary">
-                <Sparkles className="w-4 h-4 mr-2 inline" />
-                {totalCount} Courses Available
-              </Badge>
-            </motion.div>
+            <Badge className="px-3 py-1.5 text-xs font-medium" variant="outline">
+              <Sparkles className="w-3.5 h-3.5 mr-1.5 inline" />
+              {totalCount} Courses · {enrolledCount} Enrolled
+            </Badge>
 
-            {/* Main Headline - Sexy Font */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight"
-            >
-              <span className="block">Stop doom-scrolling</span>
-              <span className="block bg-linear-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                tutorials.
-              </span>
-            </motion.h1>
+            {/* Main Headline */}
+            <div className="space-y-4">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+                Master skills that matter
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Learn with AI-powered personalized courses. Adaptly helps you build
+                in-demand skills and advance your career with adaptive learning.
+              </p>
+            </div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl sm:text-2xl font-bold text-foreground/80"
-            >
-              Start actually learning stuff.
-            </motion.p>
-
-            {/* Stats Pills */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap items-center justify-center gap-4 pt-4"
-            >
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm border">
-                <TrendingUp className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium">
-                  {enrolledCount} enrolled
-                </span>
+            {/* Benefits Grid */}
+            <div className="grid sm:grid-cols-3 gap-4 pt-4 max-w-2xl mx-auto text-sm">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Zap className="w-4 h-4 text-primary" />
+                <span>AI-Powered Learning</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm border">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-medium">AI-Powered</span>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                <span>Personalized Content</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm border">
-                <Search className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium">
-                  {totalCount - enrolledCount} to explore
-                </span>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Search className="w-4 h-4 text-primary" />
+                <span>Expert Instructors</span>
               </div>
-            </motion.div>
+            </div>
 
-            {/* Large Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="pt-8 max-w-2xl mx-auto"
-            >
+            {/* Search Bar */}
+            <div className="pt-4 max-w-2xl mx-auto">
               <SearchBar
                 onSearch={setSearchQuery}
                 placeholder="Search by title, topic, or instructor..."
-                className="h-14 text-lg shadow-lg"
+                className="h-12 text-base"
               />
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
