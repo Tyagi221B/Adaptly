@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { BookOpen, TrendingUp, Award } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, TrendingUp, Award, ArrowRight } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { StaggerGrid } from "@/components/ui/stagger-grid";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { CourseCard } from "@/components/shared/course-card";
@@ -83,7 +85,7 @@ export function DashboardClient({
 
   // Filter available courses
   const filteredCourses = useMemo(() => {
-    return availableCourses.filter((course) => {
+    const filtered = availableCourses.filter((course) => {
       const matchesSearch =
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -93,7 +95,14 @@ export function DashboardClient({
 
       return matchesSearch && matchesCategory;
     });
-  }, [availableCourses, searchQuery, selectedCategory]);
+
+    // Limit to 6 courses on dashboard if user has enrollments (recommended section)
+    if (enrollments.length > 0 && !searchQuery && selectedCategory === "all") {
+      return filtered.slice(0, 6);
+    }
+
+    return filtered;
+  }, [availableCourses, searchQuery, selectedCategory, enrollments.length]);
 
   return (
     <main className="container mx-auto py-8 px-4">
@@ -221,9 +230,19 @@ export function DashboardClient({
       {availableCourses.length > 0 ? (
         <div>
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-2xl font-bold text-foreground">
-              {enrollments.length > 0 ? "Discover More Courses" : "Browse All Courses"}
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-bold text-foreground">
+                {enrollments.length > 0 ? "Recommended For You" : "Browse All Courses"}
+              </h2>
+              {enrollments.length > 0 && (
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/student/discover">
+                    Browse All
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+            </div>
             <SearchBar
               onSearch={setSearchQuery}
               placeholder="Search courses..."

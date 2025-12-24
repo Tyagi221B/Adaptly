@@ -49,7 +49,7 @@ const categoryColors: Record<string, string> = {
   other: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
 };
 
-export function CourseCard({ course, variant, enrollmentData, studentId }: CourseCardProps) {
+export function CourseCard({ course, variant, enrollmentData }: CourseCardProps) {
   const renderCTA = () => {
     if (variant === "featured") {
       return (

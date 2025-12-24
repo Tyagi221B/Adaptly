@@ -31,9 +31,9 @@ export function TopNav({ userName, userRole }: TopNavProps) {
       active: pathname === `/${userRole}/dashboard`,
     },
     {
-      href: `/${userRole}/courses`,
+      href: userRole === "student" ? "/student/discover" : `/${userRole}/courses`,
       label: "Courses",
-      active: pathname.includes("/courses"),
+      active: pathname.includes("/courses") || pathname.includes("/discover"),
     },
   ];
 

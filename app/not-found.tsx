@@ -41,7 +41,7 @@ export default function NotFound() {
                 Instructor Dashboard
               </Link>
               <Link
-                href="/student/courses"
+                href="/student/discover"
                 className="text-primary hover:underline"
               >
                 Browse Courses
@@ -65,7 +65,7 @@ export default function NotFound() {
             variant="outline"
             className="w-full sm:w-auto"
           >
-            <Link href="/student/courses">
+            <Link href="/student/discover">
               <Search className="mr-2 h-4 w-4" />
               Browse Courses
             </Link>

@@ -11,7 +11,7 @@ const studentNavItems = [
   },
   {
     title: "Browse Courses",
-    href: "/student/courses",
+    href: "/student/discover",
     icon: Library,
   },
 ];
