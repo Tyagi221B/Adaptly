@@ -38,7 +38,6 @@ export default function PublishToggle({
 
       if (!result.success) {
         toast.error(result.error || "Failed to update course status");
-        setIsToggling(false);
         return;
       }
 
@@ -51,6 +50,8 @@ export default function PublishToggle({
       router.refresh();
     } catch {
       toast.error("Failed to update course status. Please try again.");
+    } finally {
+      // Always reset loading state, whether success or error
       setIsToggling(false);
     }
   };
