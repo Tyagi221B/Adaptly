@@ -280,11 +280,13 @@ export default async function QuizResultPage({
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Button asChild variant="outline" className="w-full sm:flex-1">
-            <Link href={`/student/courses/${courseId}`}>Back to Course</Link>
+            <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
+              Back to Lecture
+            </Link>
           </Button>
           {!attempt.passed ? (
             <Button asChild className="w-full sm:flex-1">
-              <Link href={`/student/courses/${courseId}/lectures/${lectureId}`}>
+              <Link href={`/student/courses/${courseId}/lectures/${lectureId}/quiz`}>
                 Retake Quiz
               </Link>
             </Button>
