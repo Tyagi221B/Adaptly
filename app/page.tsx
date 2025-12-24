@@ -24,6 +24,8 @@ import {
   Code2,
 } from "lucide-react";
 import CountUp from "react-countup";
+import { getFeaturedCourses } from "@/actions/course.actions";
+import { CourseCard } from "@/components/shared/course-card";
 
 export default function Home() {
   return (
@@ -39,6 +41,9 @@ export default function Home() {
 
       {/* FEATURES BENTO GRID */}
       <FeaturesSection />
+
+      {/* FEATURED COURSES */}
+      <FeaturedCoursesSection />
 
       {/* STATS MARQUEE */}
       <StatsSection />
@@ -688,6 +693,112 @@ function CTASection() {
           </div>
         </motion.div>
       </motion.div>
+    </section>
+  );
+}
+
+// ==================== FEATURED COURSES SECTION ====================
+function FeaturedCoursesSection() {
+  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [courses, setCourses] = React.useState<{
+    _id: string;
+    title: string;
+    description: string;
+    category: string;
+    thumbnail?: string;
+    instructorName: string;
+    lectureCount: number;
+    averageRating: number;
+    totalReviews: number;
+    enrolledStudentsCount?: number;
+  }[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadCourses() {
+      const result = await getFeaturedCourses();
+      if (result.success && result.data) {
+        setCourses(result.data);
+      }
+      setLoading(false);
+    }
+    loadCourses();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="px-4 py-2 mb-4">Featured Courses</Badge>
+            <h2 className="text-4xl sm:text-5xl font-bold">
+              Start Learning
+              <span className="block gradient-text">Today</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="h-96 bg-muted rounded-lg animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (courses.length === 0) {
+    return null;
+  }
+
+  return (
+    <section ref={ref} className="py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <Badge className="px-4 py-2 mb-4">Featured Courses</Badge>
+          <h2 className="text-4xl sm:text-5xl font-bold">
+            Start Learning
+            <span className="block gradient-text">Today</span>
+          </h2>
+          <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+            Explore our top-rated courses and begin your journey to mastery
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {courses.map((course, i) => (
+            <motion.div
+              key={course._id}
+              initial={{ opacity: 0, y: 50 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 * i }}
+            >
+              <CourseCard course={course} variant="featured" />
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.8 }}
+          className="text-center"
+        >
+          <Button asChild size="lg" variant="outline" className="text-lg px-8 rounded-full">
+            <Link href="/signup">
+              Browse All Courses
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </Button>
+        </motion.div>
+      </div>
     </section>
   );
 }

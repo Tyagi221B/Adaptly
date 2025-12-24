@@ -314,8 +314,12 @@ export async function getPublishedCourses() {
           title: course.title,
           description: course.description,
           category: course.category,
+          thumbnail: course.thumbnail,
           instructorName: instructor.name,
           lectureCount,
+          averageRating: course.averageRating,
+          totalReviews: course.totalReviews,
+          enrolledStudentsCount: course.enrolledStudentsCount,
           createdAt: course.createdAt,
         };
       })
@@ -329,6 +333,122 @@ export async function getPublishedCourses() {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch courses",
+    };
+  }
+}
+
+// Get featured courses for landing page (top 6 by rating)
+export async function getFeaturedCourses() {
+  try {
+    await dbConnect();
+
+    const courses = await Course.find({ isPublished: true })
+      .populate("instructorId", "name email")
+      .sort({ averageRating: -1, enrolledStudentsCount: -1 })
+      .limit(6)
+      .lean();
+
+    const coursesWithDetails = await Promise.all(
+      courses.map(async (course) => {
+        const lectureCount = await Lecture.countDocuments({
+          courseId: course._id,
+        });
+
+        const instructor = course.instructorId as unknown as {
+          name: string;
+          email: string;
+        };
+
+        return {
+          _id: course._id.toString(),
+          title: course.title,
+          description: course.description,
+          category: course.category,
+          thumbnail: course.thumbnail,
+          instructorName: instructor.name,
+          lectureCount,
+          averageRating: course.averageRating,
+          totalReviews: course.totalReviews,
+          enrolledStudentsCount: course.enrolledStudentsCount,
+        };
+      })
+    );
+
+    return {
+      success: true,
+      data: coursesWithDetails,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch featured courses",
+    };
+  }
+}
+
+// Get available courses for student (excluding already enrolled)
+export async function getAvailableCoursesForStudent(studentId: string) {
+  try {
+    await dbConnect();
+
+    // Import Enrollment model
+    const Enrollment = (await import("@/database/enrollment.model")).default;
+
+    // Get enrolled course IDs
+    const enrollments = await Enrollment.find({
+      studentId: new (await import("mongoose")).Types.ObjectId(studentId),
+    })
+      .select("courseId")
+      .lean();
+
+    const enrolledCourseIds = enrollments.map((e) => e.courseId.toString());
+
+    // Get all published courses
+    const courses = await Course.find({ isPublished: true })
+      .populate("instructorId", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Filter out enrolled courses
+    const availableCourses = courses.filter(
+      (course) => !enrolledCourseIds.includes(course._id.toString())
+    );
+
+    const coursesWithDetails = await Promise.all(
+      availableCourses.map(async (course) => {
+        const lectureCount = await Lecture.countDocuments({
+          courseId: course._id,
+        });
+
+        const instructor = course.instructorId as unknown as {
+          name: string;
+          email: string;
+        };
+
+        return {
+          _id: course._id.toString(),
+          title: course.title,
+          description: course.description,
+          category: course.category,
+          thumbnail: course.thumbnail,
+          instructorName: instructor.name,
+          lectureCount,
+          averageRating: course.averageRating,
+          totalReviews: course.totalReviews,
+          enrolledStudentsCount: course.enrolledStudentsCount,
+          createdAt: course.createdAt,
+        };
+      })
+    );
+
+    return {
+      success: true,
+      data: coursesWithDetails,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch available courses",
     };
   }
 }
