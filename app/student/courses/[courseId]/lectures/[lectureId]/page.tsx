@@ -21,7 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import QuizTaker from "@/components/student/quiz-taker";
 import MarkCompleteButton from "@/components/student/mark-complete-button";
 import AIChatAssistant from "@/components/student/ai-chat-assistant";
 import { NextLectureButton } from "@/components/student/next-lecture-button";
@@ -218,12 +217,11 @@ export default async function LectureViewerPage({
                           </Link>
                         </Button>
                         {!latestAttempt.passed ? (
-                          <QuizTaker
-                            quiz={quiz}
-                            lectureId={lectureId}
-                            courseId={courseId}
-                            studentId={session.user.id}
-                          />
+                          <Button asChild size="lg" className="w-full sm:flex-1">
+                            <Link href={`/student/courses/${courseId}/lectures/${lectureId}/quiz`}>
+                              Retake Quiz
+                            </Link>
+                          </Button>
                         ) : nextLecture ? (
                           <NextLectureButton
                             courseId={courseId}
@@ -234,12 +232,11 @@ export default async function LectureViewerPage({
                       </div>
                     </div>
                   ) : (
-                    <QuizTaker
-                      quiz={quiz}
-                      lectureId={lectureId}
-                      courseId={courseId}
-                      studentId={session.user.id}
-                    />
+                    <Button asChild size="lg" className="w-full">
+                      <Link href={`/student/courses/${courseId}/lectures/${lectureId}/quiz`}>
+                        Start Quiz
+                      </Link>
+                    </Button>
                   )}
                 </CardContent>
               </Card>
@@ -265,7 +262,7 @@ export default async function LectureViewerPage({
           </div>
 
           {/* AI Sidebar - Desktop Only */}
-          <div className="hidden lg:block w-96 flex-shrink-0">
+          <div className="hidden lg:block w-96 shrink-0">
             <AIChatAssistant
               lectureContent={lecture.content}
               lectureTitle={lecture.title}
