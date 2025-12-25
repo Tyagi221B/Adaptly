@@ -227,7 +227,7 @@ Follow this structure (use markdown):
 
 ---
 
-## You've Got This!
+## Final Words
 [End with genuine encouragement and next steps]
 
 IMPORTANT RULES:
@@ -235,7 +235,7 @@ IMPORTANT RULES:
 - Group by underlying concepts, not individual questions
 - MUST include real-world analogies for each concept
 - Reference which question numbers relate to each concept
-- Use emojis sparingly (only section headers)
+- DO NOT use emojis in headings or content - keep it clean and professional
 - Keep explanations clear and concise
 - Focus on WHY, not just WHAT
 - Make it feel like a supportive conversation

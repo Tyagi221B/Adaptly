@@ -336,3 +336,74 @@ export async function generateRemedialContent(
     };
   }
 }
+
+/**
+ * Regenerate remedial content for testing purposes (dev-only)
+ * Bypasses rate limiting to allow quick iteration on prompt changes
+ */
+export async function regenerateRemedialContentForTesting(
+  studentId: string,
+  attemptId: string
+): Promise<ActionResponse<{ content: string }>> {
+  try {
+    // Only allow in development
+    if (process.env.NODE_ENV === "production") {
+      return { success: false, error: "Not available in production" };
+    }
+
+    await dbConnect();
+
+    // Get the attempt with quiz and lecture data
+    const attempt = await QuizAttempt.findOne({
+      _id: new Types.ObjectId(attemptId),
+      studentId: new Types.ObjectId(studentId),
+    })
+      .populate("quizId")
+      .populate("lectureId")
+      .lean();
+
+    if (!attempt) {
+      return { success: false, error: "Attempt not found" };
+    }
+
+    // Extract wrong answers
+    const quiz = attempt.quizId as unknown as {
+      questions: Array<{
+        questionText: string;
+        options: [string, string, string, string];
+        correctAnswerIndex: number;
+        explanation?: string;
+      }>;
+    };
+
+    const lecture = attempt.lectureId as unknown as {
+      content: string;
+    };
+
+    const wrongAnswers: WrongAnswer[] = attempt.answers
+      .filter((answer) => !answer.isCorrect)
+      .map((answer) => {
+        const question = quiz.questions[answer.questionIndex];
+        return {
+          questionText: question.questionText,
+          correctAnswer: question.options[question.correctAnswerIndex],
+          studentAnswer: question.options[answer.selectedAnswerIndex],
+          explanation: question.explanation,
+        };
+      });
+
+    // Regenerate content (skip rate limiting for dev testing)
+    const content = await generateRemedialContentAI(lecture.content, wrongAnswers);
+
+    return {
+      success: true,
+      data: { content },
+    };
+  } catch (error) {
+    console.error("Failed to regenerate remedial content:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to regenerate content",
+    };
+  }
+}

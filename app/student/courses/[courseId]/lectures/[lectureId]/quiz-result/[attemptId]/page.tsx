@@ -2,9 +2,6 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
 import { authOptions } from "@/lib/auth-config";
 import { getQuizAttemptById, generateRemedialContent } from "@/actions/quiz-attempt.actions";
 import { markLectureComplete } from "@/actions/enrollment.actions";
@@ -21,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { NextLectureButton } from "@/components/student/next-lecture-button";
 import AIChatAssistant from "@/components/student/ai-chat-assistant";
+import { RemedialContentCard } from "@/components/student/remedial-content-card";
 
 export default async function QuizResultPage({
   params,
@@ -203,27 +201,12 @@ You are helping the student understand their quiz performance. They may ask:
 
         {/* AI Remedial Content */}
         {wrongAnswers.length > 0 && remedialContent && (
-          <Card className="mb-8 border-l-4 border-l-blue-500 bg-linear-to-br from-blue-50/50 to-transparent dark:from-blue-950/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
-                <span className="text-2xl">💡</span>
-                Your Personalized Learning Path
-              </CardTitle>
-              <CardDescription>
-                Let&apos;s turn these mistakes into mastery
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:bg-muted prose-code:text-foreground prose-code:rounded prose-code:px-1 prose-code:py-0.5">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight]}
-                >
-                  {remedialContent}
-                </ReactMarkdown>
-              </div>
-            </CardContent>
-          </Card>
+          <RemedialContentCard
+            initialContent={remedialContent}
+            attemptId={attemptId}
+            studentId={session.user.id}
+            isDev={process.env.NODE_ENV === "development"}
+          />
         )}
 
         {/* Question Review */}
