@@ -203,14 +203,14 @@ You are helping the student understand their quiz performance. They may ask:
 
         {/* AI Remedial Content */}
         {wrongAnswers.length > 0 && remedialContent && (
-          <Card className="mb-8 border border-border bg-card">
+          <Card className="mb-8 border-l-4 border-l-blue-500 bg-linear-to-br from-blue-50/50 to-transparent dark:from-blue-950/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <span className="text-xl">🤖</span>
-                Personalized Learning Guide
+              <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                <span className="text-2xl">💡</span>
+                Your Personalized Learning Path
               </CardTitle>
               <CardDescription>
-                Based on your answers, here&apos;s what we recommend focusing on
+                Let&apos;s turn these mistakes into mastery
               </CardDescription>
             </CardHeader>
             <CardContent>

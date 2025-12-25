@@ -179,7 +179,7 @@ export async function generateRemedialContent(
       return "Great job! You got all questions correct. No remedial content needed.";
     }
 
-    const prompt = `You are a patient, supportive AI tutor helping a student who struggled with some quiz questions. Your goal is to help them truly understand the concepts they missed.
+    const prompt = `You are a patient, friendly tutor helping a student understand their mistakes. Think step-by-step and explain like you're talking to a curious friend.
 
 LECTURE CONTENT:
 ${lectureContent}
@@ -195,24 +195,60 @@ ${i + 1}. Question: ${qa.questionText}
   )
   .join("\n")}
 
-INSTRUCTIONS:
-Create personalized remedial content that:
-1. Identifies the core concepts the student misunderstood
-2. Explains these concepts clearly using examples and analogies
-3. Shows WHY the correct answers are right (not just WHAT they are)
-4. Connects the concepts back to the lecture material
-5. Provides practical tips to remember these concepts
-6. Uses a warm, encouraging tone - mistakes are learning opportunities!
+STEP 1 - ANALYZE FIRST (Think internally. Do not show your reasoning):
+Before writing your response, think deeply:
+- What core concepts did the student struggle with?
+- Can I group multiple questions under the same concept?
+- What real-world analogies would make this click?
+- What's the simplest way to explain this?
 
-FORMAT:
-- Use markdown formatting (headings, bold, lists, code blocks if needed)
-- Start with a brief, encouraging message
-- Organize content by concept (not by question)
-- Include concrete examples
-- End with a summary of key takeaways
-- Keep it concise but thorough (aim for 300-500 words)
+STEP 2 - WRITE YOUR RESPONSE (this is what the student sees):
+Follow this structure (use markdown):
 
-Write the remedial content now:`;
+## [Core Concept Name]
+*Related to: Question #X, #Y*
+
+[Explain what went wrong in conversational language - like you're chatting with a friend over coffee]
+
+### Think of It Like This
+[REQUIRED: Include a real-world analogy from everyday life - NOT tech jargon. Make it relatable and memorable]
+
+### Let Me Show You
+\`\`\`
+[Include a code example or practical demonstration if relevant]
+\`\`\`
+
+### Key Takeaway
+[One simple sentence they can remember]
+
+---
+
+(Repeat for each concept)
+
+---
+
+## You've Got This!
+[End with genuine encouragement and next steps]
+
+IMPORTANT RULES:
+- Be conversational and warm - talk like a human, not a textbook
+- Group by underlying concepts, not individual questions
+- MUST include real-world analogies for each concept
+- Reference which question numbers relate to each concept
+- Use emojis sparingly (only section headers)
+- Keep explanations clear and concise
+- Focus on WHY, not just WHAT
+- Make it feel like a supportive conversation
+
+FORMATTING RULES (IMPORTANT):
+- Always insert a blank line between paragraphs
+- Use TWO line breaks between major sections (headings)
+- Never place text immediately under a heading without a blank line
+- Code blocks must be surrounded by blank lines
+- Do not compress paragraphs
+- Optimize for comfortable reading, not compactness
+
+Now write your response following this exact structure:`;
 
     const { text } = await generateText({
       model: groq("llama-3.3-70b-versatile"),
