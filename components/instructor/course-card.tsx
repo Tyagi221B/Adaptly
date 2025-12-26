@@ -21,6 +21,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { deleteCourse } from "@/actions/course.actions";
 import { useSession } from "next-auth/react";
@@ -45,17 +55,15 @@ export default function CourseCard({ course }: CourseCardProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete "${course.title}"? This action cannot be undone.`)) {
-      return;
-    }
-
+  const handleDeleteConfirm = async () => {
     if (!session?.user?.id) {
       toast.error("You must be logged in to delete a course");
       return;
     }
 
+    setShowDeleteDialog(false);
     setIsDeleting(true);
 
     try {
@@ -124,7 +132,7 @@ export default function CourseCard({ course }: CourseCardProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={handleDelete}
+                onClick={() => setShowDeleteDialog(true)}
                 disabled={isDeleting}
                 className="text-red-600"
               >
@@ -188,6 +196,28 @@ export default function CourseCard({ course }: CourseCardProps) {
           <Link href={`/instructor/courses/${course._id}`}>View Course</Link>
         </Button>
       </CardFooter>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Course?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{course.title}&quot;? This will
+              permanently delete the course and all its lectures. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Course
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

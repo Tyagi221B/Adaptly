@@ -14,6 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { StarRating } from "@/components/ui/star-rating";
 import {
   createOrUpdateReview,
@@ -39,6 +49,7 @@ export function ReviewForm({
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Fetch existing review on mount
   useEffect(() => {
@@ -93,11 +104,10 @@ export function ReviewForm({
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteConfirm = async () => {
     if (!existingReviewId) return;
 
-    if (!confirm("Are you sure you want to delete your review?")) return;
-
+    setShowDeleteDialog(false);
     setIsDeleting(true);
 
     try {
@@ -183,7 +193,7 @@ export function ReviewForm({
               <Button
                 type="button"
                 variant="destructive"
-                onClick={handleDelete}
+                onClick={() => setShowDeleteDialog(true)}
                 disabled={isDeleting}
               >
                 {isDeleting ? (
@@ -202,6 +212,27 @@ export function ReviewForm({
           </div>
         </form>
       </CardContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Your Review?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete your review. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Review
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

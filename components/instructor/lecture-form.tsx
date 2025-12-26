@@ -19,6 +19,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CreateLectureSchema } from "@/lib/validations";
 import type { CreateLectureInput } from "@/lib/validations";
 import { createLecture, updateLecture, deleteLecture } from "@/actions/lecture.actions";
@@ -48,6 +58,7 @@ export default function LectureForm({
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const {
     register,
@@ -97,17 +108,12 @@ export default function LectureForm({
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteConfirm = async () => {
     if (!lectureId) return;
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this lecture? This action cannot be undone."
-    );
-
-    if (!confirmed) return;
 
     setIsLoading(true);
     setError("");
+    setShowDeleteDialog(false);
 
     try {
       const result = await deleteLecture(lectureId, instructorId);
@@ -210,7 +216,7 @@ export default function LectureForm({
               <Button
                 type="button"
                 variant="destructive"
-                onClick={handleDelete}
+                onClick={() => setShowDeleteDialog(true)}
                 disabled={isLoading}
                 className="flex items-center gap-2"
               >
@@ -240,6 +246,28 @@ export default function LectureForm({
           </div>
         </form>
       </CardContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this lecture and all associated data.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Lecture
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
