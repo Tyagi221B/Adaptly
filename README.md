@@ -198,6 +198,42 @@ The system prompt tells the AI to act as a teaching assistant and stay focused o
 
 Code: `app/api/chat/route.ts`
 
+## Testing
+
+This project includes comprehensive automated tests to ensure code quality and reliability.
+
+### Running Tests
+
+```bash
+# Run all tests once
+npm test
+
+# Run tests in watch mode (auto-reruns when files change)
+npm test:watch
+
+# Run tests with coverage report
+npm test:coverage
+```
+
+### Test Coverage
+
+- **Unit Tests**: Rate limiting, validation schemas, utility functions
+- **Component Tests**: Footer, UI components
+- **Integration Tests**: Authentication flows, course management
+
+### CI/CD Pipeline
+
+Tests run automatically on every push to `main` via GitHub Actions:
+- ✅ Linting checks
+- ✅ All test suites
+- ✅ Build verification
+
+For detailed testing documentation, see [TESTING_GUIDE.md](./TESTING_GUIDE.md)
+
+**Deployment Status**: Automatic deployment configured with Vercel. Every push to `main` triggers:
+1. GitHub Actions CI (tests & build)
+2. Vercel deployment (on CI success)
+
 ## Real-World Considerations
 
 **Security:**
@@ -220,17 +256,12 @@ Code: `app/api/chat/route.ts`
 ## What Could Be Improved
 
 If I had more time:
-- Add comprehensive tests (Vitest for units, Playwright for E2E)
 - Implement proper caching strategy (Redis or similar)
 - Add analytics dashboard for instructors
 - Support for video lectures
 - Better mobile experience for quiz taking
 - Pagination for large course lists
 - Search and filtering on discover page
-
-## Testing Branch
-
-There's a separate branch with test setup (mentioned in assignment) - will continue that work.
 
 ## Assignment Requirements
 
@@ -246,6 +277,7 @@ This project addresses all the mandatory requirements:
 Optional features implemented:
 - ✓ NextAuth authentication with role-based access
 - ✓ AI integration (quiz generation, chat assistant, remedial feedback)
+- ✓ Comprehensive testing suite with CI/CD pipeline
 
 ## ♿ Accessibility
 
