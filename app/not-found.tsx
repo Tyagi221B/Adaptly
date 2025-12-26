@@ -49,7 +49,7 @@ export default function NotFound() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-2 sm:flex-row">
+        <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Button
             asChild
             variant="default"
