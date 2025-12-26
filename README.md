@@ -228,8 +228,6 @@ Tests run automatically on every push to `main` via GitHub Actions:
 - ✅ All test suites
 - ✅ Build verification
 
-For detailed testing documentation, see [TESTING_GUIDE.md](./TESTING_GUIDE.md)
-
 **Deployment Status**: Automatic deployment configured with Vercel. Every push to `main` triggers:
 1. GitHub Actions CI (tests & build)
 2. Vercel deployment (on CI success)
