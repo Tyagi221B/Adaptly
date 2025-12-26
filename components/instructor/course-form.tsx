@@ -52,7 +52,7 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
   const [isLoading, setIsLoading] = useState(false);
   const isEditMode = !!courseId && !!initialData;
 
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailData, setThumbnailData] = useState<{url: string; publicId: string} | null>(null);
   const [removeThumbnail, setRemoveThumbnail] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -63,15 +63,16 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
     try {
       console.log("[FORM] Submitting form...");
       console.log("[FORM] Edit mode:", isEditMode);
-      console.log("[FORM] Thumbnail file:", thumbnailFile ? `${thumbnailFile.name} (${thumbnailFile.size} bytes)` : "None");
+      console.log("[FORM] Thumbnail data:", thumbnailData);
       console.log("[FORM] Remove thumbnail:", removeThumbnail);
 
       const formData = new FormData(e.currentTarget);
 
-      // Add thumbnail file if exists
-      if (thumbnailFile) {
-        console.log("[FORM] Appending thumbnail file to FormData");
-        formData.append("thumbnailFile", thumbnailFile);
+      // Add thumbnail URL and publicId if exists
+      if (thumbnailData) {
+        console.log("[FORM] Appending thumbnail URL and publicId");
+        formData.append("thumbnailUrl", thumbnailData.url);
+        formData.append("thumbnailPublicId", thumbnailData.publicId);
       }
 
       // Add remove thumbnail flag
@@ -184,12 +185,12 @@ export default function CourseForm({ instructorId, courseId, initialData }: Cour
             <Label>Course Thumbnail</Label>
             <ImageUpload
               value={initialData?.thumbnail}
-              onChange={(file) => {
-                setThumbnailFile(file);
+              onChange={(result) => {
+                setThumbnailData(result);
                 setRemoveThumbnail(false);
               }}
               onRemove={() => {
-                setThumbnailFile(null);
+                setThumbnailData(null);
                 setRemoveThumbnail(true);
               }}
             />

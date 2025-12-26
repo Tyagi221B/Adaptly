@@ -12,10 +12,12 @@ export async function createCourse(formData: FormData) {
   try {
     console.log("[CREATE COURSE] Starting...");
     const instructorId = formData.get("instructorId") as string;
-    const thumbnailFile = formData.get("thumbnailFile") as File | null;
+    const thumbnailUrl = formData.get("thumbnailUrl") as string | null;
+    const thumbnailPublicId = formData.get("thumbnailPublicId") as string | null;
 
     console.log("[CREATE COURSE] Instructor ID:", instructorId);
-    console.log("[CREATE COURSE] Thumbnail file:", thumbnailFile ? `Yes (${thumbnailFile.size} bytes, ${thumbnailFile.type})` : "No");
+    console.log("[CREATE COURSE] Thumbnail URL:", thumbnailUrl || "None");
+    console.log("[CREATE COURSE] Thumbnail Public ID:", thumbnailPublicId || "None");
 
     const data: CreateCourseInput = {
       title: formData.get("title") as string,
@@ -27,32 +29,6 @@ export async function createCourse(formData: FormData) {
     const validatedData = CreateCourseSchema.parse(data);
 
     await dbConnect();
-
-    let thumbnailUrl: string | undefined;
-    let thumbnailPublicId: string | undefined;
-
-    // If thumbnail file provided, upload to Cloudinary
-    if (thumbnailFile && thumbnailFile.size > 0) {
-      console.log("[CREATE COURSE] Converting file to base64...");
-      const bytes = await thumbnailFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const base64 = `data:${thumbnailFile.type};base64,${buffer.toString("base64")}`;
-
-      console.log("[CREATE COURSE] Uploading to Cloudinary...");
-      const result = await uploadImage(base64, "adaptly/courses");
-
-      console.log("[CREATE COURSE] Upload result:", result);
-
-      if (result.success) {
-        thumbnailUrl = result.url;
-        thumbnailPublicId = result.publicId;
-        console.log("[CREATE COURSE] Thumbnail uploaded successfully!");
-      } else {
-        console.error("[CREATE COURSE] Upload failed:", result.error);
-      }
-    } else {
-      console.log("[CREATE COURSE] No thumbnail file to upload");
-    }
 
     const course = await Course.create({
       ...validatedData,
@@ -187,12 +163,14 @@ export async function updateCourse(formData: FormData) {
     console.log("[UPDATE COURSE] Starting...");
     const courseId = formData.get("courseId") as string;
     const instructorId = formData.get("instructorId") as string;
-    const thumbnailFile = formData.get("thumbnailFile") as File | null;
+    const newThumbnailUrl = formData.get("thumbnailUrl") as string | null;
+    const newThumbnailPublicId = formData.get("thumbnailPublicId") as string | null;
     const removeThumbnail = formData.get("removeThumbnail") === "true";
 
     console.log("[UPDATE COURSE] Course ID:", courseId);
     console.log("[UPDATE COURSE] Instructor ID:", instructorId);
-    console.log("[UPDATE COURSE] Thumbnail file:", thumbnailFile ? `Yes (${thumbnailFile.size} bytes, ${thumbnailFile.type})` : "No");
+    console.log("[UPDATE COURSE] New thumbnail URL:", newThumbnailUrl || "None");
+    console.log("[UPDATE COURSE] New thumbnail public ID:", newThumbnailPublicId || "None");
     console.log("[UPDATE COURSE] Remove thumbnail flag:", removeThumbnail);
 
     const data: UpdateCourseInput = {
@@ -221,39 +199,30 @@ export async function updateCourse(formData: FormData) {
     let thumbnailUrl = existingCourse.thumbnail;
     let thumbnailPublicId = existingCourse.thumbnailPublicId;
 
-    // If new thumbnail file provided
-    if (thumbnailFile && thumbnailFile.size > 0) {
-      console.log("[UPDATE COURSE] New thumbnail file detected");
+    // If new thumbnail URL provided (already uploaded from client)
+    if (newThumbnailUrl && newThumbnailPublicId) {
+      console.log("[UPDATE COURSE] New thumbnail detected (already uploaded from client)");
 
-      // Delete old Cloudinary image if exists
+      // Delete old Cloudinary image if exists (async, non-blocking)
       if (existingCourse.thumbnailPublicId) {
         console.log("[UPDATE COURSE] Deleting old image from Cloudinary:", existingCourse.thumbnailPublicId);
-        await deleteImage(existingCourse.thumbnailPublicId);
+        // Delete in background - don't await
+        deleteImage(existingCourse.thumbnailPublicId).catch(err => {
+          console.error("[UPDATE COURSE] Failed to delete old image:", err);
+        });
       }
 
-      // Upload new file to Cloudinary
-      console.log("[UPDATE COURSE] Converting new file to base64...");
-      const bytes = await thumbnailFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const base64 = `data:${thumbnailFile.type};base64,${buffer.toString("base64")}`;
-
-      console.log("[UPDATE COURSE] Uploading new file to Cloudinary...");
-      const result = await uploadImage(base64, "adaptly/courses");
-
-      console.log("[UPDATE COURSE] Upload result:", result);
-
-      if (result.success) {
-        thumbnailUrl = result.url;
-        thumbnailPublicId = result.publicId;
-        console.log("[UPDATE COURSE] New thumbnail uploaded successfully!");
-      } else {
-        console.error("[UPDATE COURSE] Upload failed:", result.error);
-      }
+      thumbnailUrl = newThumbnailUrl;
+      thumbnailPublicId = newThumbnailPublicId;
+      console.log("[UPDATE COURSE] Using new thumbnail from client upload");
     }
     // If thumbnail is being removed
     else if (removeThumbnail && existingCourse.thumbnailPublicId) {
       console.log("[UPDATE COURSE] Removing thumbnail");
-      await deleteImage(existingCourse.thumbnailPublicId);
+      // Delete in background - don't await
+      deleteImage(existingCourse.thumbnailPublicId).catch(err => {
+        console.error("[UPDATE COURSE] Failed to delete image:", err);
+      });
       thumbnailUrl = undefined;
       thumbnailPublicId = undefined;
       console.log("[UPDATE COURSE] Thumbnail removed");
