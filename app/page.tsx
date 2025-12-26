@@ -27,10 +27,16 @@ import CountUp from "react-countup";
 import { getFeaturedCourses } from "@/actions/course.actions";
 import { CourseCard } from "@/components/shared/course-card";
 import { Footer } from "@/components/navigation/footer";
+import { ThemeToggle } from "@/components/navigation/theme-toggle";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
+      {/* Theme Toggle - Fixed in top-right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* HERO SECTION - Asymmetric Layout */}
       <HeroSection />
 
