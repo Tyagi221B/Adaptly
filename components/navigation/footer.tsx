@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Code2 } from "lucide-react";
+import { Mail, Code2, Video } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export function Footer() {
@@ -56,6 +56,15 @@ export function Footer() {
               </div>
 
               <div className="flex flex-col gap-2">
+                <Link
+                  href="https://www.youtube.com/watch?v=pQOskkCH1_g"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
+                  <Video className="h-4 w-4" />
+                  <span>Demo Video</span>
+                </Link>
                 <Link
                   href="https://github.com/Tyagi221B/Adaptly"
                   target="_blank"

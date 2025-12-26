@@ -2,6 +2,12 @@
 
 An AI-powered Learning Management System built with Next.js 16, TypeScript, and MongoDB.
 
+## Demo Video
+
+[![Adaptly Demo](https://res.cloudinary.com/asmitdemocloud/image/upload/v1766749576/Screenshot_2025-12-26_at_4.05.57_PM_b2nvg1.png)](https://www.youtube.com/watch?v=pQOskkCH1_g)
+
+**[Watch the full demo on YouTube](https://www.youtube.com/watch?v=pQOskkCH1_g)**
+
 ## What is this?
 
 Adaptly is a full-stack LMS that goes beyond basic CRUD operations. The main differentiator is the AI integration throughout the learning experience - from automated quiz generation to context-aware chat assistance during lectures and after assessments.
