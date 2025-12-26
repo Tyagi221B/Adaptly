@@ -88,7 +88,7 @@ export function CourseCard({ course, variant, enrollmentData }: CourseCardProps)
       <div className="relative w-full aspect-video overflow-hidden rounded-t-lg">
         <Image
           src={course.thumbnail || "/placeholder-course.jpg"}
-          alt={course.title}
+          alt={`Course thumbnail for ${course.title}`}
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -106,9 +106,9 @@ export function CourseCard({ course, variant, enrollmentData }: CourseCardProps)
           </Badge>
 
           <div className="flex items-center gap-1 text-sm">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
             <span className="font-medium">{course.averageRating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({course.totalReviews})</span>
+            <span className="text-muted-foreground">({course.totalReviews} reviews)</span>
           </div>
         </div>
 
@@ -120,12 +120,12 @@ export function CourseCard({ course, variant, enrollmentData }: CourseCardProps)
         {/* Instructor and Lectures */}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" />
+            <BookOpen className="h-4 w-4" aria-hidden="true" />
             <span>{course.lectureCount} lectures</span>
           </div>
           {course.enrolledStudentsCount !== undefined && (
             <div className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
+              <Users className="h-4 w-4" aria-hidden="true" />
               <span>{course.enrolledStudentsCount} students</span>
             </div>
           )}

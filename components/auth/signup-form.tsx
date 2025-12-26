@@ -104,9 +104,14 @@ export default function SignupForm() {
               placeholder="John Doe"
               {...register("name")}
               disabled={isLoading}
+              aria-required="true"
+              aria-invalid={errors.name ? "true" : "false"}
+              aria-describedby={errors.name ? "name-error" : undefined}
             />
             {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
+              <p id="name-error" role="alert" className="text-sm text-red-500">
+                {errors.name.message}
+              </p>
             )}
           </div>
 
@@ -119,9 +124,14 @@ export default function SignupForm() {
               placeholder="john@example.com"
               {...register("email")}
               disabled={isLoading}
+              aria-required="true"
+              aria-invalid={errors.email ? "true" : "false"}
+              aria-describedby={errors.email ? "email-error" : undefined}
             />
             {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
+              <p id="email-error" role="alert" className="text-sm text-red-500">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -134,9 +144,14 @@ export default function SignupForm() {
               placeholder="••••••••"
               {...register("password")}
               disabled={isLoading}
+              aria-required="true"
+              aria-invalid={errors.password ? "true" : "false"}
+              aria-describedby={errors.password ? "password-error" : undefined}
             />
             {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
+              <p id="password-error" role="alert" className="text-sm text-red-500">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -147,25 +162,35 @@ export default function SignupForm() {
               id="role"
               {...register("role")}
               disabled={isLoading}
+              aria-required="true"
+              aria-invalid={errors.role ? "true" : "false"}
+              aria-describedby={errors.role ? "role-error" : undefined}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="student">Student</option>
               <option value="instructor">Instructor</option>
             </select>
             {errors.role && (
-              <p className="text-sm text-red-500">{errors.role.message}</p>
+              <p id="role-error" role="alert" className="text-sm text-red-500">
+                {errors.role.message}
+              </p>
             )}
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-md bg-red-50 p-3">
+            <div role="alert" aria-live="polite" className="rounded-md bg-red-50 p-3">
               <p className="text-sm text-red-500">{error}</p>
             </div>
           )}
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+            aria-busy={isLoading}
+          >
             {isLoading ? "Creating account..." : "Sign up"}
           </Button>
 

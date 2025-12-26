@@ -381,8 +381,8 @@ export async function regenerateRemedialContentForTesting(
     };
 
     const wrongAnswers: WrongAnswer[] = attempt.answers
-      .filter((answer) => !answer.isCorrect)
-      .map((answer) => {
+      .filter((answer: IStudentAnswer) => !answer.isCorrect)
+      .map((answer: IStudentAnswer) => {
         const question = quiz.questions[answer.questionIndex];
         return {
           questionText: question.questionText,

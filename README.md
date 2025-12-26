@@ -241,6 +241,29 @@ Optional features implemented:
 - ✓ NextAuth authentication with role-based access
 - ✓ AI integration (quiz generation, chat assistant, remedial feedback)
 
+## ♿ Accessibility
+
+Adaptly follows WCAG 2.1 Level AA guidelines to ensure the platform is accessible to all users:
+
+**Core Features:**
+- **Keyboard Navigation** - Full keyboard support using Tab, Enter, Esc, and Arrow keys
+- **Screen Reader Compatible** - Proper ARIA labels, landmarks, and semantic HTML
+- **Focus Management** - Clear focus indicators and logical tab order
+- **Form Accessibility** - Labeled inputs with error announcements (aria-live regions)
+- **Color Contrast** - Meets WCAG AA contrast ratios (verified)
+- **Skip Navigation** - Skip to main content link for keyboard users
+- **Alternative Text** - Descriptive alt text for all meaningful images
+- **Live Regions** - Dynamic content changes announced to assistive tech
+- **Responsive Design** - Works across all screen sizes and devices
+
+**Testing Tools:**
+- ESLint jsx-a11y plugin for linting accessibility issues
+- axe-core for automated runtime accessibility testing (dev mode)
+- Manual keyboard navigation testing
+- Color contrast verification
+
+[View Full Accessibility Statement](/accessibility)
+
 ## Known Limitations
 
 - No email verification (would need email service)

@@ -6,7 +6,9 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LoadingBar } from "@/components/ui/loading-bar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
+import { SkipLink } from "@/components/navigation/skip-link";
 import { checkDatabaseConnection } from "@/lib/startup";
+import { AccessibilityChecker } from "@/components/providers/accessibility-checker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,9 +45,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <SkipLink />
             <LoadingBar />
             <ScrollToTop />
             {children}
+            <AccessibilityChecker />
           </ThemeProvider>
         </AuthSessionProvider>
         <Toaster />

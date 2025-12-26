@@ -43,7 +43,7 @@ export function TopNav({ userName, userRole }: TopNavProps) {
         <AppLogo />
 
         <div className="flex items-center gap-3">
-          <nav className="hidden md:flex items-center gap-1 mr-2">
+          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1 mr-2">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <Button
@@ -62,7 +62,7 @@ export function TopNav({ userName, userRole }: TopNavProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 md:hidden">
+              <Button variant="outline" size="sm" className="gap-2 md:hidden" aria-label="Open navigation menu">
                 Menu
               </Button>
             </DropdownMenuTrigger>
@@ -84,8 +84,8 @@ export function TopNav({ userName, userRole }: TopNavProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <User className="h-4 w-4" />
+              <Button variant="outline" size="sm" className="gap-2" aria-label="User account menu">
+                <User className="h-4 w-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{userName}</span>
               </Button>
             </DropdownMenuTrigger>
