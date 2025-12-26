@@ -32,6 +32,13 @@ const dbConnect = async (): Promise<Mongoose> => {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
         dbName: "adaptly",
+        // Serverless-optimized settings
+        serverSelectionTimeoutMS: 10000, // 10 seconds for server selection
+        socketTimeoutMS: 45000, // 45 seconds socket timeout
+        maxPoolSize: 10, // Limit connection pool for serverless
+        minPoolSize: 1,
+        retryWrites: true,
+        retryReads: true,
       })
       .then((result) => {
         console.log("Connected to MongoDB");

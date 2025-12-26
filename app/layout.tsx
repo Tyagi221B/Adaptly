@@ -7,7 +7,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { LoadingBar } from "@/components/ui/loading-bar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { SkipLink } from "@/components/navigation/skip-link";
-import { checkDatabaseConnection } from "@/lib/startup";
 import { AccessibilityChecker } from "@/components/providers/accessibility-checker";
 
 const geistSans = Geist({
@@ -24,9 +23,6 @@ export const metadata: Metadata = {
   title: "Adaptly - AI-Powered Adaptive Learning Platform",
   description: "Transform how you learn with personalized AI tutoring that adapts to your knowledge gaps",
 };
-
-// Run database health check on startup
-checkDatabaseConnection();
 
 export default function RootLayout({
   children,
