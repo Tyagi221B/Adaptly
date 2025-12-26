@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/card";
 import { CreateLectureSchema } from "@/lib/validations";
 import type { CreateLectureInput } from "@/lib/validations";
-import { createLecture, updateLecture } from "@/actions/lecture.actions";
+import { createLecture, updateLecture, deleteLecture } from "@/actions/lecture.actions";
+import { toast } from "sonner";
 
 interface LectureFormProps {
   courseId: string;
@@ -92,6 +93,35 @@ export default function LectureForm({
       router.push(`/instructor/courses/${courseId}`);
     } catch {
       setError("Something went wrong. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!lectureId) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this lecture? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const result = await deleteLecture(lectureId, instructorId);
+
+      if (!result.success) {
+        toast.error(result.error || "Failed to delete lecture");
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Lecture deleted successfully");
+      router.push(`/instructor/courses/${courseId}`);
+    } catch {
+      toast.error("Something went wrong. Please try again.");
       setIsLoading(false);
     }
   };
@@ -176,6 +206,18 @@ export default function LectureForm({
           )}
 
           <div className="flex gap-4">
+            {isEditMode && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"

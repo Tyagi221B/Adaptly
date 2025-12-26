@@ -226,20 +226,20 @@ export default function AIChatAssistant({
                     }`}
                   >
                     <div
-                      className={`rounded-lg px-4 py-2 max-w-[85%] ${
+                      className={`rounded-lg px-4 py-2 max-w-[85%] break-words ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-foreground"
                       }`}
                     >
                       {message.role === "assistant" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1">
+                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 break-words overflow-wrap-anywhere">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {message.content}
                           </ReactMarkdown>
                         </div>
                       ) : (
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm break-words">{message.content}</p>
                       )}
                     </div>
                   </div>

@@ -818,3 +818,20 @@
 a:active:not([target="_blank"]):not([href^="#"]):not([download]) {
   cursor: progress !important;
 }
+
+/* ============================================
+   AI Chat - Text Wrapping Fix
+   ============================================ */
+
+/* Ensure long words and code in chat messages wrap properly */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Ensure code blocks in chat wrap properly */
+.prose pre {
+  overflow-x: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
