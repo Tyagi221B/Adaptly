@@ -16,7 +16,7 @@ describe('Footer Component', () => {
     const githubLink = screen.getByRole('link', { name: /github\.com\/Tyagi221B/i });
 
     // Verify it has the correct href
-    expect(githubLink).toHaveAttribute('href', 'https://github.com/Tyagi221B');
+    expect(githubLink).toHaveAttribute('href', 'https://github.com/Tyagi221B/Adaptly');
 
     // Verify it opens in new tab
     expect(githubLink).toHaveAttribute('target', '_blank');
