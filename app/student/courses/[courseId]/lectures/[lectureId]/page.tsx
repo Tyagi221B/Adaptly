@@ -267,6 +267,7 @@ export default async function LectureViewerPage({
               lectureContent={lecture.content}
               lectureTitle={lecture.title}
               lectureId={lectureId}
+              studentId={session.user.id}
               mode="sidebar"
             />
           </div>
@@ -278,6 +279,7 @@ export default async function LectureViewerPage({
             lectureContent={lecture.content}
             lectureTitle={lecture.title}
             lectureId={lectureId}
+            studentId={session.user.id}
             mode="floating"
           />
         </div>

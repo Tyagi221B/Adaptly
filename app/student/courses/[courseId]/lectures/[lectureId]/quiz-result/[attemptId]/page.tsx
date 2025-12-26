@@ -323,6 +323,7 @@ You are helping the student understand their quiz performance. They may ask:
               lectureContent={enhancedContext}
               lectureTitle={`${attempt.lecture.title} - Quiz Results`}
               lectureId={lectureId}
+              studentId={session.user.id}
               mode="sidebar"
             />
           </div>
@@ -334,6 +335,7 @@ You are helping the student understand their quiz performance. They may ask:
             lectureContent={enhancedContext}
             lectureTitle={`${attempt.lecture.title} - Quiz Results`}
             lectureId={lectureId}
+            studentId={session.user.id}
             mode="floating"
           />
         </div>

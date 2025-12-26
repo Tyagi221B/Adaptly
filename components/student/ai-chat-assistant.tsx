@@ -19,6 +19,7 @@ interface AIChatAssistantProps {
   lectureContent: string;
   lectureTitle: string;
   lectureId: string;
+  studentId: string;
   mode?: "sidebar" | "floating";
 }
 
@@ -26,6 +27,7 @@ export default function AIChatAssistant({
   lectureContent,
   lectureTitle,
   lectureId,
+  studentId,
   mode = "floating",
 }: AIChatAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,9 +52,9 @@ export default function AIChatAssistant({
     }
   }, [isCollapsed, mode]);
 
-  // Load messages from localStorage for this lecture
+  // Load messages from localStorage for this lecture and student
   useEffect(() => {
-    const storageKey = `ai-chat-messages-${lectureId}`;
+    const storageKey = `ai-chat-messages-${studentId}-${lectureId}`;
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
@@ -64,15 +66,15 @@ export default function AIChatAssistant({
     } else {
       setMessages([]);
     }
-  }, [lectureId]);
+  }, [lectureId, studentId]);
 
   // Save messages to localStorage when they change
   useEffect(() => {
     if (messages.length > 0) {
-      const storageKey = `ai-chat-messages-${lectureId}`;
+      const storageKey = `ai-chat-messages-${studentId}-${lectureId}`;
       localStorage.setItem(storageKey, JSON.stringify(messages));
     }
-  }, [messages, lectureId]);
+  }, [messages, lectureId, studentId]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -136,7 +138,7 @@ export default function AIChatAssistant({
   };
 
   const handleClearChat = () => {
-    const storageKey = `ai-chat-messages-${lectureId}`;
+    const storageKey = `ai-chat-messages-${studentId}-${lectureId}`;
     localStorage.removeItem(storageKey);
     setMessages([]);
     toast.success("Chat cleared");
@@ -202,7 +204,7 @@ export default function AIChatAssistant({
                   <Sparkles className="h-12 w-12 text-muted-foreground animate-pulse" />
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-foreground">
-                      Hi! I'm your AI tutor
+                      Hi! I&apos;m your AI tutor
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Ask me anything about this lecture
@@ -211,9 +213,9 @@ export default function AIChatAssistant({
                   <div className="space-y-2 text-xs text-muted-foreground text-left w-full max-w-xs">
                     <p className="font-medium">Try asking:</p>
                     <ul className="space-y-1 pl-4">
-                      <li>• "Explain this simply"</li>
-                      <li>• "What are the key points?"</li>
-                      <li>• "Give me an example"</li>
+                      <li>• &quot;Explain this simply&quot;</li>
+                      <li>• &quot;What are the key points?&quot;</li>
+                      <li>• &quot;Give me an example&quot;</li>
                     </ul>
                   </div>
                 </div>
@@ -226,20 +228,20 @@ export default function AIChatAssistant({
                     }`}
                   >
                     <div
-                      className={`rounded-lg px-4 py-2 max-w-[85%] break-words ${
+                      className={`rounded-lg px-4 py-2 max-w-[85%] wrap-break-word ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-foreground"
                       }`}
                     >
                       {message.role === "assistant" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 break-words overflow-wrap-anywhere">
+                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 wrap-break-word overflow-wrap-anywhere">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {message.content}
                           </ReactMarkdown>
                         </div>
                       ) : (
-                        <p className="text-sm break-words">{message.content}</p>
+                        <p className="text-sm wrap-break-word">{message.content}</p>
                       )}
                     </div>
                   </div>
