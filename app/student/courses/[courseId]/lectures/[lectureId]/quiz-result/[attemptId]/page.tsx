@@ -4,7 +4,6 @@ import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { authOptions } from "@/lib/auth-config";
 import { getQuizAttemptById, generateRemedialContent } from "@/actions/quiz-attempt.actions";
-import { markLectureComplete } from "@/actions/enrollment.actions";
 import { getCourseLectures } from "@/actions/lecture.actions";
 import type { WrongAnswer } from "@/lib/ai";
 import { Button } from "@/components/ui/button";
@@ -45,11 +44,6 @@ export default async function QuizResultPage({
   }
 
   const attempt = attemptResult.data;
-
-  // Mark lecture as complete if passed
-  if (attempt.passed) {
-    await markLectureComplete(session.user.id, courseId, lectureId);
-  }
 
   // Get all lectures to find the next one
   const lecturesResult = await getCourseLectures(courseId, session.user.id);

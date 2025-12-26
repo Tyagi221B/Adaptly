@@ -11,6 +11,7 @@ import {
   formatResetTime,
 } from "@/lib/rate-limit";
 import { generateRemedialContent as generateRemedialContentAI, type WrongAnswer } from "@/lib/ai";
+import { markLectureComplete } from "./enrollment.actions";
 
 interface ActionResponse<T = unknown> {
   success: boolean;
@@ -89,6 +90,11 @@ export async function submitQuizAttempt(
       score,
       passed,
     });
+
+    // Mark lecture as complete if quiz was passed
+    if (passed) {
+      await markLectureComplete(studentId, courseId, lectureId);
+    }
 
     return {
       success: true,

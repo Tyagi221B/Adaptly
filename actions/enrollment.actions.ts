@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Enrollment from "@/database/enrollment.model";
 import Course from "@/database/course.model";
@@ -203,6 +204,9 @@ export async function markLectureComplete(
       enrollment.progress.completedLectures.push(lectureObjectId);
       enrollment.progress.lastAccessedLecture = lectureObjectId;
       await enrollment.save();
+
+      // Revalidate the lectures layout to update sidebar
+      revalidatePath(`/student/courses/${courseId}/lectures`);
     }
 
     return { success: true };
