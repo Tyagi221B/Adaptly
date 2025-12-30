@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Enrollment from "@/database/enrollment.model";
 import Course from "@/database/course.model";
-import Lecture from "@/database/lecture.model";
 import { Types } from "mongoose";
 
 interface ActionResponse<T = unknown> {
@@ -86,59 +85,107 @@ export async function getMyEnrollments(
   try {
     await dbConnect();
 
-    const enrollments = await Enrollment.find({
-      studentId: new Types.ObjectId(studentId),
-    })
-      .populate({
-        path: "courseId",
-        populate: {
-          path: "instructorId",
-          select: "name",
+    // Use aggregation to join enrollments with courses, instructors, and lecture counts.
+    // For 10 enrollments, this reduces 11 queries to just 1.
+    const enrollmentsWithDetails = await Enrollment.aggregate([
+      // Match enrollments for this student
+      { $match: { studentId: new Types.ObjectId(studentId) } },
+
+      // Join with courses collection
+      {
+        $lookup: {
+          from: "courses",
+          localField: "courseId",
+          foreignField: "_id",
+          as: "course",
         },
-      })
-      .sort({ enrolledAt: -1 })
-      .lean();
+      },
 
-    const enrollmentsWithProgress = await Promise.all(
-      enrollments.map(async (enrollment) => {
-        const course = enrollment.courseId as unknown as {
-          _id: Types.ObjectId;
-          title: string;
-          description: string;
-          category: string;
-          thumbnail?: string;
-          averageRating: number;
-          totalReviews: number;
-          instructorId: { name: string };
-        };
+      // Unwind course array (should be only one course per enrollment)
+      { $unwind: "$course" },
 
-        const totalLectures = await Lecture.countDocuments({
-          courseId: course._id,
-        });
+      // Join with users collection to get instructor name
+      {
+        $lookup: {
+          from: "users",
+          localField: "course.instructorId",
+          foreignField: "_id",
+          as: "instructor",
+        },
+      },
 
-        const completedLectures = enrollment.progress.completedLectures.length;
-        const progressPercentage =
-          totalLectures > 0 ? Math.round((completedLectures / totalLectures) * 100) : 0;
+      // Join with lectures collection to get lecture count
+      {
+        $lookup: {
+          from: "lectures",
+          localField: "courseId",
+          foreignField: "courseId",
+          as: "lectures",
+        },
+      },
 
-        return {
-          _id: enrollment._id.toString(),
-          courseId: course._id.toString(),
-          courseTitle: course.title,
-          courseDescription: course.description,
-          courseCategory: course.category,
-          courseThumbnail: course.thumbnail,
-          courseInstructorName: course.instructorId?.name || "Unknown",
-          courseAverageRating: course.averageRating || 0,
-          courseTotalReviews: course.totalReviews || 0,
-          enrolledAt: enrollment.enrolledAt,
-          totalLectures,
-          completedLectures,
-          progressPercentage,
-        };
-      })
-    );
+      // Calculate progress metrics
+      {
+        $addFields: {
+          totalLectures: { $size: "$lectures" },
+          completedLectures: { $size: "$progress.completedLectures" },
+          instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+        },
+      },
 
-    return { success: true, data: enrollmentsWithProgress };
+      // Calculate progress percentage
+      {
+        $addFields: {
+          progressPercentage: {
+            $cond: {
+              if: { $gt: ["$totalLectures", 0] },
+              then: {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ["$completedLectures", "$totalLectures"] },
+                      100,
+                    ],
+                  },
+                  0,
+                ],
+              },
+              else: 0,
+            },
+          },
+        },
+      },
+
+      // Remove temporary arrays
+      {
+        $project: {
+          lectures: 0,
+          instructor: 0,
+        },
+      },
+
+      // Sort by enrollment date (most recent first)
+      { $sort: { enrolledAt: -1 } },
+    ]);
+
+    // Transform aggregation results to match expected return type
+    const formattedEnrollments = enrollmentsWithDetails.map((enrollment) => ({
+      _id: enrollment._id.toString(),
+      courseId: enrollment.courseId.toString(),
+      courseTitle: enrollment.course.title,
+      courseDescription: enrollment.course.description,
+      courseCategory: enrollment.course.category,
+      courseThumbnail: enrollment.course.thumbnail,
+      courseInstructorName: enrollment.instructorName || "Unknown",
+      courseAverageRating: enrollment.course.averageRating || 0,
+      courseTotalReviews: enrollment.course.totalReviews || 0,
+      enrolledAt: enrollment.enrolledAt,
+      totalLectures: enrollment.totalLectures,
+      completedLectures: enrollment.completedLectures,
+      progressPercentage: enrollment.progressPercentage,
+    }));
+
+    return { success: true, data: formattedEnrollments };
   } catch (error) {
     console.error("Error fetching enrollments:", error);
     return { success: false, error: "Failed to fetch your enrollments" };

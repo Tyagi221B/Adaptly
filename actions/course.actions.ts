@@ -1,12 +1,13 @@
 "use server";
 
 import { ZodError } from "zod";
+import { Types } from "mongoose";
 import dbConnect from "@/lib/mongodb";
 import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
 import { CreateCourseSchema, UpdateCourseSchema } from "@/lib/validations";
 import type { CreateCourseInput, UpdateCourseInput } from "@/lib/validations";
-import { deleteImage, uploadImage } from "@/lib/cloudinary";
+import { deleteImage } from "@/lib/cloudinary";
 
 export async function createCourse(formData: FormData) {
   try {
@@ -69,35 +70,58 @@ export async function getMyCourses(instructorId: string) {
   try {
     await dbConnect();
 
-    const courses = await Course.find({ instructorId })
-      .sort({ createdAt: -1 })
-      .lean();
+    // Use aggregation to get lecture counts in a single query instead of N+1 queries.
+    // For 20 courses, this reduces 21 database queries to just 1.
+    const coursesWithCount = await Course.aggregate([
+      // Match courses owned by this instructor
+      // Convert string instructorId to ObjectId for aggregation pipeline
+      { $match: { instructorId: new Types.ObjectId(instructorId) } },
 
-    // Get lecture count for each course
-    const coursesWithCount = await Promise.all(
-      courses.map(async (course) => {
-        const lectureCount = await Lecture.countDocuments({
-          courseId: course._id,
-        });
+      // Join with lectures collection to get lecture count per course
+      {
+        $lookup: {
+          from: "lectures",
+          localField: "_id",
+          foreignField: "courseId",
+          as: "lectures",
+        },
+      },
 
-        return {
-          _id: course._id.toString(),
-          title: course.title,
-          description: course.description,
-          category: course.category,
-          thumbnail: course.thumbnail,
-          averageRating: course.averageRating,
-          totalReviews: course.totalReviews,
-          isPublished: course.isPublished,
-          lectureCount,
-          createdAt: course.createdAt,
-        };
-      })
-    );
+      // Calculate lecture count from the joined array
+      {
+        $addFields: {
+          lectureCount: { $size: "$lectures" },
+        },
+      },
+
+      // Remove the lectures array (we only need the count)
+      {
+        $project: {
+          lectures: 0,
+        },
+      },
+
+      // Sort by creation date (newest first)
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    // Transform aggregation results to match expected return type
+    const formattedCourses = coursesWithCount.map((course) => ({
+      _id: course._id.toString(),
+      title: course.title,
+      description: course.description,
+      category: course.category,
+      thumbnail: course.thumbnail,
+      averageRating: course.averageRating,
+      totalReviews: course.totalReviews,
+      isPublished: course.isPublished,
+      lectureCount: course.lectureCount,
+      createdAt: course.createdAt,
+    }));
 
     return {
       success: true,
-      data: coursesWithCount,
+      data: formattedCourses,
     };
   } catch (error) {
     return {
@@ -405,41 +429,70 @@ export async function getPublishedCourses() {
   try {
     await dbConnect();
 
-    const courses = await Course.find({ isPublished: true })
-      .populate("instructorId", "name email")
-      .sort({ createdAt: -1 })
-      .lean();
+    // Use aggregation to join instructors and count lectures in a single query.
+    // For 100 published courses, this reduces 101 queries to just 1.
+    const coursesWithDetails = await Course.aggregate([
+      // Match only published courses
+      { $match: { isPublished: true } },
 
-    const coursesWithCount = await Promise.all(
-      courses.map(async (course) => {
-        const lectureCount = await Lecture.countDocuments({
-          courseId: course._id,
-        });
+      // Join with users collection to get instructor details
+      {
+        $lookup: {
+          from: "users",
+          localField: "instructorId",
+          foreignField: "_id",
+          as: "instructor",
+        },
+      },
 
-        const instructor = course.instructorId as unknown as {
-          name: string;
-          email: string;
-        };
+      // Join with lectures collection to get lecture count
+      {
+        $lookup: {
+          from: "lectures",
+          localField: "_id",
+          foreignField: "courseId",
+          as: "lectures",
+        },
+      },
 
-        return {
-          _id: course._id.toString(),
-          title: course.title,
-          description: course.description,
-          category: course.category,
-          thumbnail: course.thumbnail,
-          instructorName: instructor.name,
-          lectureCount,
-          averageRating: course.averageRating,
-          totalReviews: course.totalReviews,
-          enrolledStudentsCount: course.enrolledStudentsCount,
-          createdAt: course.createdAt,
-        };
-      })
-    );
+      // Calculate lecture count and extract instructor data
+      {
+        $addFields: {
+          lectureCount: { $size: "$lectures" },
+          instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+        },
+      },
+
+      // Remove temporary arrays (we only need the calculated fields)
+      {
+        $project: {
+          lectures: 0,
+          instructor: 0,
+        },
+      },
+
+      // Sort by creation date (newest first)
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    // Transform aggregation results to match expected return type
+    const formattedCourses = coursesWithDetails.map((course) => ({
+      _id: course._id.toString(),
+      title: course.title,
+      description: course.description,
+      category: course.category,
+      thumbnail: course.thumbnail,
+      instructorName: course.instructorName,
+      lectureCount: course.lectureCount,
+      averageRating: course.averageRating,
+      totalReviews: course.totalReviews,
+      enrolledStudentsCount: course.enrolledStudentsCount,
+      createdAt: course.createdAt,
+    }));
 
     return {
       success: true,
-      data: coursesWithCount,
+      data: formattedCourses,
     };
   } catch (error) {
     return {
@@ -454,41 +507,72 @@ export async function getFeaturedCourses() {
   try {
     await dbConnect();
 
-    const courses = await Course.find({ isPublished: true })
-      .populate("instructorId", "name email")
-      .sort({ averageRating: -1, enrolledStudentsCount: -1 })
-      .limit(6)
-      .lean();
+    // Use aggregation to get top-rated courses with instructor and lecture details.
+    // For 6 featured courses, this reduces 7 queries to just 1.
+    const featuredCourses = await Course.aggregate([
+      // Match only published courses
+      { $match: { isPublished: true } },
 
-    const coursesWithDetails = await Promise.all(
-      courses.map(async (course) => {
-        const lectureCount = await Lecture.countDocuments({
-          courseId: course._id,
-        });
+      // Join with users collection to get instructor details
+      {
+        $lookup: {
+          from: "users",
+          localField: "instructorId",
+          foreignField: "_id",
+          as: "instructor",
+        },
+      },
 
-        const instructor = course.instructorId as unknown as {
-          name: string;
-          email: string;
-        };
+      // Join with lectures collection to get lecture count
+      {
+        $lookup: {
+          from: "lectures",
+          localField: "_id",
+          foreignField: "courseId",
+          as: "lectures",
+        },
+      },
 
-        return {
-          _id: course._id.toString(),
-          title: course.title,
-          description: course.description,
-          category: course.category,
-          thumbnail: course.thumbnail,
-          instructorName: instructor.name,
-          lectureCount,
-          averageRating: course.averageRating,
-          totalReviews: course.totalReviews,
-          enrolledStudentsCount: course.enrolledStudentsCount,
-        };
-      })
-    );
+      // Calculate lecture count and extract instructor data
+      {
+        $addFields: {
+          lectureCount: { $size: "$lectures" },
+          instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+        },
+      },
+
+      // Remove temporary arrays
+      {
+        $project: {
+          lectures: 0,
+          instructor: 0,
+        },
+      },
+
+      // Sort by rating (highest first), then by enrollment count
+      { $sort: { averageRating: -1, enrolledStudentsCount: -1 } },
+
+      // Limit to top 6 courses
+      { $limit: 6 },
+    ]);
+
+    // Transform aggregation results to match expected return type
+    const formattedCourses = featuredCourses.map((course) => ({
+      _id: course._id.toString(),
+      title: course.title,
+      description: course.description,
+      category: course.category,
+      thumbnail: course.thumbnail,
+      instructorName: course.instructorName,
+      lectureCount: course.lectureCount,
+      averageRating: course.averageRating,
+      totalReviews: course.totalReviews,
+      enrolledStudentsCount: course.enrolledStudentsCount,
+    }));
 
     return {
       success: true,
-      data: coursesWithDetails,
+      data: formattedCourses,
     };
   } catch (error) {
     return {
@@ -503,59 +587,85 @@ export async function getAvailableCoursesForStudent(studentId: string) {
   try {
     await dbConnect();
 
-    // Import Enrollment model
+    const { Types } = await import("mongoose");
     const Enrollment = (await import("@/database/enrollment.model")).default;
+    const studentObjectId = new Types.ObjectId(studentId);
 
-    // Get enrolled course IDs
-    const enrollments = await Enrollment.find({
-      studentId: new (await import("mongoose")).Types.ObjectId(studentId),
-    })
+    // First, get enrolled course IDs for this student
+    const enrolledCourseIds = await Enrollment.find({ studentId: studentObjectId })
       .select("courseId")
-      .lean();
+      .lean()
+      .then((enrollments) => enrollments.map((e) => e.courseId));
 
-    const enrolledCourseIds = enrollments.map((e) => e.courseId.toString());
+    // Use aggregation to get published courses with all details, excluding enrolled courses.
+    // This reduces N+2 queries to just 2 queries (1 for enrollments, 1 for available courses).
+    const availableCourses = await Course.aggregate([
+      // Match published courses that student hasn't enrolled in
+      {
+        $match: {
+          isPublished: true,
+          _id: { $nin: enrolledCourseIds },
+        },
+      },
 
-    // Get all published courses
-    const courses = await Course.find({ isPublished: true })
-      .populate("instructorId", "name email")
-      .sort({ createdAt: -1 })
-      .lean();
+      // Join with users collection to get instructor details
+      {
+        $lookup: {
+          from: "users",
+          localField: "instructorId",
+          foreignField: "_id",
+          as: "instructor",
+        },
+      },
 
-    // Filter out enrolled courses
-    const availableCourses = courses.filter(
-      (course) => !enrolledCourseIds.includes(course._id.toString())
-    );
+      // Join with lectures collection to get lecture count
+      {
+        $lookup: {
+          from: "lectures",
+          localField: "_id",
+          foreignField: "courseId",
+          as: "lectures",
+        },
+      },
 
-    const coursesWithDetails = await Promise.all(
-      availableCourses.map(async (course) => {
-        const lectureCount = await Lecture.countDocuments({
-          courseId: course._id,
-        });
+      // Calculate lecture count and extract instructor data
+      {
+        $addFields: {
+          lectureCount: { $size: "$lectures" },
+          instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+        },
+      },
 
-        const instructor = course.instructorId as unknown as {
-          name: string;
-          email: string;
-        };
+      // Remove temporary arrays
+      {
+        $project: {
+          lectures: 0,
+          instructor: 0,
+        },
+      },
 
-        return {
-          _id: course._id.toString(),
-          title: course.title,
-          description: course.description,
-          category: course.category,
-          thumbnail: course.thumbnail,
-          instructorName: instructor.name,
-          lectureCount,
-          averageRating: course.averageRating,
-          totalReviews: course.totalReviews,
-          enrolledStudentsCount: course.enrolledStudentsCount,
-          createdAt: course.createdAt,
-        };
-      })
-    );
+      // Sort by creation date (newest first)
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    // Transform aggregation results to match expected return type
+    const formattedCourses = availableCourses.map((course) => ({
+      _id: course._id.toString(),
+      title: course.title,
+      description: course.description,
+      category: course.category,
+      thumbnail: course.thumbnail,
+      instructorName: course.instructorName,
+      lectureCount: course.lectureCount,
+      averageRating: course.averageRating,
+      totalReviews: course.totalReviews,
+      enrolledStudentsCount: course.enrolledStudentsCount,
+      createdAt: course.createdAt,
+    }));
 
     return {
       success: true,
-      data: coursesWithDetails,
+      data: formattedCourses,
     };
   } catch (error) {
     return {
