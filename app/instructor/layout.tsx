@@ -17,7 +17,11 @@ export default async function InstructorLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNav userName={session.user.name} userRole="instructor" />
+      <TopNav
+        userName={session.user.name}
+        userRole="instructor"
+        isAdmin={session.user.isAdmin}
+      />
       <main id="main-content" className="flex-1">{children}</main>
       <Footer />
     </div>

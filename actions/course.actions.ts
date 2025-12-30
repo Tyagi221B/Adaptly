@@ -123,10 +123,16 @@ export async function getCourseById(courseId: string, instructorId: string) {
       };
     }
 
+    // Import Enrollment model
+    const Enrollment = (await import("@/database/enrollment.model")).default;
+
     // Get lectures for this course
     const lectures = await Lecture.find({ courseId })
       .sort({ order: 1 })
       .lean();
+
+    // Get enrollment count for this course
+    const enrollmentCount = await Enrollment.countDocuments({ courseId });
 
     return {
       success: true,
@@ -141,6 +147,7 @@ export async function getCourseById(courseId: string, instructorId: string) {
           instructorMessage: course.instructorMessage,
           isPublished: course.isPublished,
           createdAt: course.createdAt,
+          enrolledStudentsCount: enrollmentCount,
         },
         lectures: lectures.map((lecture) => ({
           _id: lecture._id.toString(),

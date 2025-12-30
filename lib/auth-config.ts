@@ -43,6 +43,7 @@ export const authOptions: AuthOptions = {
           name: user.name,
           email: user.email,
           role: user.role,
+          isAdmin: user.isAdmin || false,
         };
       },
     }),
@@ -53,6 +54,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },
@@ -61,6 +63,7 @@ export const authOptions: AuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as "student" | "instructor";
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },
