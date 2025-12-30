@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Shield } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { AppLogo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
@@ -19,9 +19,10 @@ import { cn } from "@/lib/utils";
 interface TopNavProps {
   userName: string;
   userRole: "student" | "instructor";
+  isAdmin?: boolean;
 }
 
-export function TopNav({ userName, userRole }: TopNavProps) {
+export function TopNav({ userName, userRole, isAdmin = false }: TopNavProps) {
   const pathname = usePathname();
 
   const navLinks = [
@@ -103,6 +104,17 @@ export function TopNav({ userName, userRole }: TopNavProps) {
                 </div>
               </div>
               <DropdownMenuSeparator />
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard" className="cursor-pointer">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem
                 className="cursor-pointer text-destructive focus:text-destructive"
                 onClick={() => signOut({ callbackUrl: "/" })}

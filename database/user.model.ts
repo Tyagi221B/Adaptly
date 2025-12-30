@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: "student" | "instructor";
+  isAdmin: boolean;
   bio?: string;
   profilePicture?: string;
   linkedIn?: string;
@@ -59,6 +60,10 @@ const UserSchema = new Schema<IUser>(
         message: "Role must be either student or instructor",
       },
       default: "student",
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
     },
     bio: {
       type: String,
