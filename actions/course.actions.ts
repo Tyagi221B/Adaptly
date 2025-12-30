@@ -2,6 +2,7 @@
 
 import { ZodError } from "zod";
 import { Types } from "mongoose";
+import { unstable_cache, revalidateTag } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
@@ -361,6 +362,11 @@ export async function toggleCoursePublish(courseId: string, instructorId: string
     course.isPublished = !course.isPublished;
     await course.save();
 
+    // Invalidate course catalog caches when publish status changes
+    revalidateTag('courses', 'max');
+    revalidateTag('published-courses', 'max');
+    revalidateTag('featured-courses', 'max');
+
     return {
       success: true,
       data: {
@@ -425,162 +431,178 @@ export async function getCourseForStudent(courseId: string) {
 }
 
 // Get all published courses for students (catalog)
-export async function getPublishedCourses() {
-  try {
-    await dbConnect();
+// Cached for 5 minutes - course catalog changes only when instructor publishes
+export const getPublishedCourses = unstable_cache(
+  async () => {
+    try {
+      await dbConnect();
 
-    // Use aggregation to join instructors and count lectures in a single query.
-    // For 100 published courses, this reduces 101 queries to just 1.
-    const coursesWithDetails = await Course.aggregate([
-      // Match only published courses
-      { $match: { isPublished: true } },
+      // Use aggregation to join instructors and count lectures in a single query.
+      // For 100 published courses, this reduces 101 queries to just 1.
+      const coursesWithDetails = await Course.aggregate([
+        // Match only published courses
+        { $match: { isPublished: true } },
 
-      // Join with users collection to get instructor details
-      {
-        $lookup: {
-          from: "users",
-          localField: "instructorId",
-          foreignField: "_id",
-          as: "instructor",
+        // Join with users collection to get instructor details
+        {
+          $lookup: {
+            from: "users",
+            localField: "instructorId",
+            foreignField: "_id",
+            as: "instructor",
+          },
         },
-      },
 
-      // Join with lectures collection to get lecture count
-      {
-        $lookup: {
-          from: "lectures",
-          localField: "_id",
-          foreignField: "courseId",
-          as: "lectures",
+        // Join with lectures collection to get lecture count
+        {
+          $lookup: {
+            from: "lectures",
+            localField: "_id",
+            foreignField: "courseId",
+            as: "lectures",
+          },
         },
-      },
 
-      // Calculate lecture count and extract instructor data
-      {
-        $addFields: {
-          lectureCount: { $size: "$lectures" },
-          instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+        // Calculate lecture count and extract instructor data
+        {
+          $addFields: {
+            lectureCount: { $size: "$lectures" },
+            instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+          },
         },
-      },
 
-      // Remove temporary arrays (we only need the calculated fields)
-      {
-        $project: {
-          lectures: 0,
-          instructor: 0,
+        // Remove temporary arrays (we only need the calculated fields)
+        {
+          $project: {
+            lectures: 0,
+            instructor: 0,
+          },
         },
-      },
 
-      // Sort by creation date (newest first)
-      { $sort: { createdAt: -1 } },
-    ]);
+        // Sort by creation date (newest first)
+        { $sort: { createdAt: -1 } },
+      ]);
 
-    // Transform aggregation results to match expected return type
-    const formattedCourses = coursesWithDetails.map((course) => ({
-      _id: course._id.toString(),
-      title: course.title,
-      description: course.description,
-      category: course.category,
-      thumbnail: course.thumbnail,
-      instructorName: course.instructorName,
-      lectureCount: course.lectureCount,
-      averageRating: course.averageRating,
-      totalReviews: course.totalReviews,
-      enrolledStudentsCount: course.enrolledStudentsCount,
-      createdAt: course.createdAt,
-    }));
+      // Transform aggregation results to match expected return type
+      const formattedCourses = coursesWithDetails.map((course) => ({
+        _id: course._id.toString(),
+        title: course.title,
+        description: course.description,
+        category: course.category,
+        thumbnail: course.thumbnail,
+        instructorName: course.instructorName,
+        lectureCount: course.lectureCount,
+        averageRating: course.averageRating,
+        totalReviews: course.totalReviews,
+        enrolledStudentsCount: course.enrolledStudentsCount,
+        createdAt: course.createdAt,
+      }));
 
-    return {
-      success: true,
-      data: formattedCourses,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch courses",
-    };
+      return {
+        success: true,
+        data: formattedCourses,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch courses",
+      };
+    }
+  },
+  ['published-courses'],
+  {
+    revalidate: 300, // 5 minutes
+    tags: ['courses', 'published-courses']
   }
-}
+);
 
 // Get featured courses for landing page (top 6 by rating)
-export async function getFeaturedCourses() {
-  try {
-    await dbConnect();
+// Cached for 10 minutes
+export const getFeaturedCourses = unstable_cache(
+  async () => {
+    try {
+      await dbConnect();
 
-    // Use aggregation to get top-rated courses with instructor and lecture details.
-    // For 6 featured courses, this reduces 7 queries to just 1.
-    const featuredCourses = await Course.aggregate([
-      // Match only published courses
-      { $match: { isPublished: true } },
+      // Use aggregation to get top-rated courses with instructor and lecture details.
+      // For 6 featured courses, this reduces 7 queries to just 1.
+      const featuredCourses = await Course.aggregate([
+        // Match only published courses
+        { $match: { isPublished: true } },
 
-      // Join with users collection to get instructor details
-      {
-        $lookup: {
-          from: "users",
-          localField: "instructorId",
-          foreignField: "_id",
-          as: "instructor",
+        // Join with users collection to get instructor details
+        {
+          $lookup: {
+            from: "users",
+            localField: "instructorId",
+            foreignField: "_id",
+            as: "instructor",
+          },
         },
-      },
 
-      // Join with lectures collection to get lecture count
-      {
-        $lookup: {
-          from: "lectures",
-          localField: "_id",
-          foreignField: "courseId",
-          as: "lectures",
+        // Join with lectures collection to get lecture count
+        {
+          $lookup: {
+            from: "lectures",
+            localField: "_id",
+            foreignField: "courseId",
+            as: "lectures",
+          },
         },
-      },
 
-      // Calculate lecture count and extract instructor data
-      {
-        $addFields: {
-          lectureCount: { $size: "$lectures" },
-          instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+        // Calculate lecture count and extract instructor data
+        {
+          $addFields: {
+            lectureCount: { $size: "$lectures" },
+            instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+          },
         },
-      },
 
-      // Remove temporary arrays
-      {
-        $project: {
-          lectures: 0,
-          instructor: 0,
+        // Remove temporary arrays
+        {
+          $project: {
+            lectures: 0,
+            instructor: 0,
+          },
         },
-      },
 
-      // Sort by rating (highest first), then by enrollment count
-      { $sort: { averageRating: -1, enrolledStudentsCount: -1 } },
+        // Sort by rating (highest first), then by enrollment count
+        { $sort: { averageRating: -1, enrolledStudentsCount: -1 } },
 
-      // Limit to top 6 courses
-      { $limit: 6 },
-    ]);
+        // Limit to top 6 courses
+        { $limit: 6 },
+      ]);
 
-    // Transform aggregation results to match expected return type
-    const formattedCourses = featuredCourses.map((course) => ({
-      _id: course._id.toString(),
-      title: course.title,
-      description: course.description,
-      category: course.category,
-      thumbnail: course.thumbnail,
-      instructorName: course.instructorName,
-      lectureCount: course.lectureCount,
-      averageRating: course.averageRating,
-      totalReviews: course.totalReviews,
-      enrolledStudentsCount: course.enrolledStudentsCount,
-    }));
+      // Transform aggregation results to match expected return type
+      const formattedCourses = featuredCourses.map((course) => ({
+        _id: course._id.toString(),
+        title: course.title,
+        description: course.description,
+        category: course.category,
+        thumbnail: course.thumbnail,
+        instructorName: course.instructorName,
+        lectureCount: course.lectureCount,
+        averageRating: course.averageRating,
+        totalReviews: course.totalReviews,
+        enrolledStudentsCount: course.enrolledStudentsCount,
+      }));
 
-    return {
-      success: true,
-      data: formattedCourses,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch featured courses",
-    };
+      return {
+        success: true,
+        data: formattedCourses,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch featured courses",
+      };
+    }
+  },
+  ['featured-courses'],
+  {
+    revalidate: 600, // 10 minutes
+    tags: ['courses', 'featured-courses']
   }
-}
+);
 
 // Get available courses for student (excluding already enrolled)
 export async function getAvailableCoursesForStudent(studentId: string) {
