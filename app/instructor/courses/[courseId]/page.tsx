@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Plus, Settings, Pencil } from "lucide-react";
+import { ChevronLeft, Plus, Settings, Pencil, Users } from "lucide-react";
 import { authOptions } from "@/lib/auth-config";
 import { getCourseById } from "@/actions/course.actions";
 import { Button } from "@/components/ui/button";
@@ -78,6 +78,12 @@ export default async function CourseDetailPage({
           </div>
 
           <div className="flex gap-3">
+            <Button variant="outline" asChild>
+              <Link href={`/instructor/courses/${courseId}/students`}>
+                <Users className="mr-2 h-4 w-4" />
+                View Students ({course.enrolledStudentsCount || 0})
+              </Link>
+            </Button>
             <PublishToggle
               courseId={courseId}
               instructorId={session.user.id}
