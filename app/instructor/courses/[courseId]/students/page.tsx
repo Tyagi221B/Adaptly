@@ -36,7 +36,7 @@ export default async function CourseStudentsPage({
     session.user.id
   );
 
-  const students = studentsResult.success ? studentsResult.data : [];
+  const students = studentsResult.success && studentsResult.data ? studentsResult.data : [];
 
   return (
     <div className="min-h-screen bg-background">

@@ -101,56 +101,106 @@ export async function getAllStudents(params?: {
 
     const { search, limit = 50, offset = 0 } = params || {};
 
-    // Build search filter
-    const searchFilter = search
-      ? {
+    // Building aggregation pipeline to avoid N+1 queries
+    // Single query with $lookup joins instead of N queries in a loop
+    const pipeline: Array<Record<string, unknown>> = [
+      // Match students only
+      { $match: { role: "student" } },
+    ];
+
+    // Add search filter if provided
+    if (search) {
+      pipeline.push({
+        $match: {
           $or: [
             { name: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
           ],
-        }
-      : {};
+        },
+      });
+    }
 
-    // Get students with basic info
-    const students = await User.find({
-      role: "student",
-      ...searchFilter,
-    })
-      .select("name email profilePicture createdAt")
-      .sort({ createdAt: -1 })
-      .skip(offset)
-      .limit(limit)
-      .lean();
+    // Join with enrollments collection
+    pipeline.push({
+      $lookup: {
+        from: "enrollments",
+        localField: "_id",
+        foreignField: "studentId",
+        as: "enrollments",
+      },
+    });
 
-    // Calculate stats for each student
-    const studentsWithStats = await Promise.all(
-      students.map(async (student) => {
-        const [enrollments, quizAttempts] = await Promise.all([
-          Enrollment.find({ studentId: student._id }).lean(),
-          QuizAttempt.find({ studentId: student._id }).lean(),
-        ]);
+    // Join with quiz attempts collection
+    pipeline.push({
+      $lookup: {
+        from: "quizattempts",
+        localField: "_id",
+        foreignField: "studentId",
+        as: "quizAttempts",
+      },
+    });
 
-        const passedQuizzes = quizAttempts.filter((q) => q.passed);
-        const averageScore =
-          quizAttempts.length > 0
-            ? Math.round(
-                quizAttempts.reduce((sum, q) => sum + q.score, 0) /
-                  quizAttempts.length
-              )
-            : 0;
+    // Calculate stats using aggregation operators
+    pipeline.push({
+      $addFields: {
+        enrollmentCount: { $size: "$enrollments" },
+        quizzesPassedCount: {
+          $size: {
+            $filter: {
+              input: "$quizAttempts",
+              as: "attempt",
+              cond: { $eq: ["$$attempt.passed", true] },
+            },
+          },
+        },
+        averageScore: {
+          $cond: {
+            if: { $gt: [{ $size: "$quizAttempts" }, 0] },
+            then: {
+              $round: [{ $avg: "$quizAttempts.score" }, 0],
+            },
+            else: 0,
+          },
+        },
+      },
+    });
 
-        return {
-          _id: student._id.toString(),
-          name: student.name,
-          email: student.email,
-          profilePicture: student.profilePicture || undefined,
-          enrollmentCount: enrollments.length,
-          quizzesPassedCount: passedQuizzes.length,
-          averageScore,
-          createdAt: student.createdAt,
-        };
-      })
-    );
+    // Project only needed fields (exclude password, remove temp arrays)
+    pipeline.push({
+      $project: {
+        _id: 1,
+        name: 1,
+        email: 1,
+        profilePicture: 1,
+        createdAt: 1,
+        enrollmentCount: 1,
+        quizzesPassedCount: 1,
+        averageScore: 1,
+      },
+    });
+
+    // Sort by creation date (newest first)
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    // Pagination
+    pipeline.push({ $skip: offset });
+    pipeline.push({ $limit: limit });
+
+    // Execute aggregation - single query instead of N+1
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const students = await User.aggregate(pipeline as any);
+
+    // Transform to match expected type
+    const studentsWithStats: StudentListItem[] = students.map((student) => ({
+      _id: student._id.toString(),
+      name: student.name,
+      email: student.email,
+      profilePicture: student.profilePicture || undefined,
+      enrollmentCount: student.enrollmentCount,
+      quizzesPassedCount: student.quizzesPassedCount,
+      averageScore: student.averageScore,
+      createdAt: student.createdAt,
+    }));
 
     return { success: true, data: studentsWithStats };
   } catch (error) {
@@ -364,60 +414,127 @@ export async function getAllInstructors(params?: {
 
     const { search, limit = 50, offset = 0 } = params || {};
 
-    // Build search filter
-    const searchFilter = search
-      ? {
+    // Build aggregation pipeline to avoid N+1 queries
+    const pipeline: Array<Record<string, unknown>> = [
+      // Match instructors only
+      { $match: { role: "instructor" } },
+    ];
+
+    // Add search filter if provided
+    if (search) {
+      pipeline.push({
+        $match: {
           $or: [
             { name: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
           ],
-        }
-      : {};
+        },
+      });
+    }
 
-    // Get instructors
-    const instructors = await User.find({
-      role: "instructor",
-      ...searchFilter,
-    })
-      .select("name email profilePicture createdAt")
-      .sort({ createdAt: -1 })
-      .skip(offset)
-      .limit(limit)
-      .lean();
+    // Join with courses collection
+    pipeline.push({
+      $lookup: {
+        from: "courses",
+        localField: "_id",
+        foreignField: "instructorId",
+        as: "courses",
+      },
+    });
 
-    // Calculate stats for each instructor
-    const instructorsWithStats = await Promise.all(
-      instructors.map(async (instructor) => {
-        const courses = await Course.find({ instructorId: instructor._id }).lean();
-        const publishedCourses = courses.filter((c) => c.isPublished);
+    // Join courses with enrollments to get student counts
+    pipeline.push({
+      $lookup: {
+        from: "enrollments",
+        localField: "courses._id",
+        foreignField: "courseId",
+        as: "enrollments",
+      },
+    });
 
-        // Calculate total students
-        const courseIds = courses.map((c) => c._id);
-        const totalStudents = await Enrollment.countDocuments({
-          courseId: { $in: courseIds },
-        });
+    // Calculate stats using aggregation operators
+    pipeline.push({
+      $addFields: {
+        totalCourses: { $size: "$courses" },
+        publishedCourses: {
+          $size: {
+            $filter: {
+              input: "$courses",
+              as: "course",
+              cond: { $eq: ["$$course.isPublished", true] },
+            },
+          },
+        },
+        totalStudents: { $size: "$enrollments" },
+        averageRating: {
+          $cond: {
+            if: { $gt: [{ $size: "$courses" }, 0] },
+            then: {
+              $round: [
+                {
+                  $divide: [
+                    {
+                      $reduce: {
+                        input: "$courses",
+                        initialValue: 0,
+                        in: {
+                          $add: [
+                            "$$value",
+                            { $ifNull: ["$$this.averageRating", 0] },
+                          ],
+                        },
+                      },
+                    },
+                    { $size: "$courses" },
+                  ],
+                },
+                1,
+              ],
+            },
+            else: 0,
+          },
+        },
+      },
+    });
 
-        // Calculate average rating
-        const avgRating =
-          courses.length > 0
-            ? Math.round(
-                (courses.reduce((sum, c) => sum + (c.averageRating || 0), 0) /
-                  courses.length) *
-                  10
-              ) / 10
-            : 0;
+    // Project only needed fields (exclude password, remove temp arrays)
+    pipeline.push({
+      $project: {
+        _id: 1,
+        name: 1,
+        email: 1,
+        profilePicture: 1,
+        createdAt: 1,
+        totalCourses: 1,
+        publishedCourses: 1,
+        totalStudents: 1,
+        averageRating: 1,
+      },
+    });
 
-        return {
-          _id: instructor._id.toString(),
-          name: instructor.name,
-          email: instructor.email,
-          profilePicture: instructor.profilePicture || undefined,
-          totalCourses: courses.length,
-          publishedCourses: publishedCourses.length,
-          totalStudents,
-          averageRating: avgRating,
-          createdAt: instructor.createdAt,
-        };
+    // Sort by creation date (newest first)
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    // Pagination
+    pipeline.push({ $skip: offset });
+    pipeline.push({ $limit: limit });
+
+    // Execute aggregation - single query instead of 2N+1
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const instructors = await User.aggregate(pipeline as any);
+
+    // Transform to match expected type
+    const instructorsWithStats: InstructorListItem[] = instructors.map(
+      (instructor) => ({
+        _id: instructor._id.toString(),
+        name: instructor.name,
+        email: instructor.email,
+        profilePicture: instructor.profilePicture || undefined,
+        totalCourses: instructor.totalCourses,
+        publishedCourses: instructor.publishedCourses,
+        totalStudents: instructor.totalStudents,
+        averageRating: instructor.averageRating,
+        createdAt: instructor.createdAt,
       })
     );
 

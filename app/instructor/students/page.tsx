@@ -17,7 +17,7 @@ export default async function AllStudentsPage() {
   // Get all students across all instructor's courses
   const studentsResult = await getAllInstructorStudents(session.user.id);
 
-  const students = studentsResult.success ? studentsResult.data : [];
+  const students = studentsResult.success && studentsResult.data ? studentsResult.data : [];
 
   return (
     <div className="min-h-screen bg-background">
