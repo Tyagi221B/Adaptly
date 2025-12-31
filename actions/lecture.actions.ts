@@ -1,6 +1,7 @@
 "use server";
 
 import { ZodError } from "zod";
+import { unstable_cache, revalidateTag } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
@@ -27,6 +28,9 @@ export async function createLecture(instructorId: string, data: CreateLectureInp
     }
 
     const lecture = await Lecture.create(validatedData);
+
+    // Invalidate lecture caches
+    revalidateTag('lectures', 'max');
 
     return {
       success: true,
@@ -130,38 +134,46 @@ export async function getLectureById(lectureId: string, instructorId: string) {
   }
 }
 
-// Get lecture by ID for students (doesn't check instructor ownership)
-export async function getLectureForStudent(lectureId: string) {
-  try {
-    await dbConnect();
+// Get lecture content for student
+// Cached for 1 hour - lecture content is static after publish
+export const getLectureForStudent = unstable_cache(
+  async (lectureId: string) => {
+    try {
+      await dbConnect();
 
-    const lecture = await Lecture.findById(lectureId).lean();
+      const lecture = await Lecture.findById(lectureId).lean();
 
-    if (!lecture) {
+      if (!lecture) {
+        return {
+          success: false,
+          error: "Lecture not found",
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          _id: lecture._id.toString(),
+          courseId: lecture.courseId.toString(),
+          title: lecture.title,
+          content: lecture.content,
+          order: lecture.order,
+          createdAt: lecture.createdAt,
+        },
+      };
+    } catch (error) {
       return {
         success: false,
-        error: "Lecture not found",
+        error: error instanceof Error ? error.message : "Failed to fetch lecture",
       };
     }
-
-    return {
-      success: true,
-      data: {
-        _id: lecture._id.toString(),
-        courseId: lecture.courseId.toString(),
-        title: lecture.title,
-        content: lecture.content,
-        order: lecture.order,
-        createdAt: lecture.createdAt,
-      },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch lecture",
-    };
+  },
+  ['lecture-content'],
+  {
+    revalidate: 3600,
+    tags: ['lectures']
   }
-}
+);
 
 export async function updateLecture(
   lectureId: string,
@@ -197,6 +209,9 @@ export async function updateLecture(
 
     Object.assign(lecture, validatedData);
     await lecture.save();
+
+    // Invalidate lecture caches
+    revalidateTag('lectures', 'max');
 
     return {
       success: true,
@@ -248,6 +263,9 @@ export async function deleteLecture(lectureId: string, instructorId: string) {
 
     await lecture.deleteOne();
 
+    // Invalidate lecture caches
+    revalidateTag('lectures', 'max');
+
     return {
       success: true,
       message: "Lecture deleted successfully",
@@ -283,37 +301,46 @@ export async function getNextLectureOrder(courseId: string) {
   }
 }
 
-export async function getCourseLectures(courseId: string, _studentId: string) {
-  try {
-    await dbConnect();
+// Get list of lectures for a course (sidebar)
+// Cached for 30 minutes - list changes when lectures added/removed
+export const getCourseLectures = unstable_cache(
+  async (courseId: string, _studentId: string) => {
+    try {
+      await dbConnect();
 
-    // Verify course exists and is published
-    const course = await Course.findById(courseId);
-    if (!course || !course.isPublished) {
+      // Verify course exists and is published
+      const course = await Course.findById(courseId);
+      if (!course || !course.isPublished) {
+        return {
+          success: false,
+          error: "Course not found",
+        };
+      }
+
+      // Get all lectures for the course
+      const lectures = await Lecture.find({ courseId })
+        .select("_id title order")
+        .sort({ order: 1 })
+        .lean();
+
+      return {
+        success: true,
+        data: lectures.map((lecture) => ({
+          _id: lecture._id.toString(),
+          title: lecture.title,
+          order: lecture.order,
+        })),
+      };
+    } catch (error) {
       return {
         success: false,
-        error: "Course not found",
+        error: error instanceof Error ? error.message : "Failed to get lectures",
       };
     }
-
-    // Get all lectures for the course
-    const lectures = await Lecture.find({ courseId })
-      .select("_id title order")
-      .sort({ order: 1 })
-      .lean();
-
-    return {
-      success: true,
-      data: lectures.map((lecture) => ({
-        _id: lecture._id.toString(),
-        title: lecture.title,
-        order: lecture.order,
-      })),
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to get lectures",
-    };
+  },
+  ['course-lectures'],
+  {
+    revalidate: 1800,
+    tags: ['lectures']
   }
-}
+);
