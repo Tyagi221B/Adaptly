@@ -2,7 +2,7 @@
 
 import { ZodError } from "zod";
 import { Types } from "mongoose";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
@@ -366,6 +366,10 @@ export async function toggleCoursePublish(courseId: string, instructorId: string
     revalidateTag('courses', 'max');
     revalidateTag('published-courses', 'max');
     revalidateTag('featured-courses', 'max');
+
+    // Invalidate router cache to show immediate updates
+    revalidatePath('/student/discover');
+    revalidatePath(`/instructor/courses/${courseId}`);
 
     return {
       success: true,

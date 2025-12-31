@@ -1,7 +1,7 @@
 "use server";
 
 import { ZodError } from "zod";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
@@ -31,6 +31,10 @@ export async function createLecture(instructorId: string, data: CreateLectureInp
 
     // Invalidate lecture caches
     revalidateTag('lectures', 'max');
+
+    // Invalidate router cache to show new lecture immediately
+    revalidatePath(`/instructor/courses/${validatedData.courseId}`);
+    revalidatePath(`/student/courses/${validatedData.courseId}/lectures`);
 
     return {
       success: true,
@@ -213,6 +217,11 @@ export async function updateLecture(
     // Invalidate lecture caches
     revalidateTag('lectures', 'max');
 
+    // Invalidate router cache to show updates immediately
+    revalidatePath(`/instructor/courses/${lecture.courseId.toString()}`);
+    revalidatePath(`/student/courses/${lecture.courseId.toString()}/lectures/${lectureId}`);
+    revalidatePath(`/student/courses/${lecture.courseId.toString()}/lectures`);
+
     return {
       success: true,
       data: {
@@ -265,6 +274,10 @@ export async function deleteLecture(lectureId: string, instructorId: string) {
 
     // Invalidate lecture caches
     revalidateTag('lectures', 'max');
+
+    // Invalidate router cache to remove deleted lecture immediately
+    revalidatePath(`/instructor/courses/${lecture.courseId.toString()}`);
+    revalidatePath(`/student/courses/${lecture.courseId.toString()}/lectures`);
 
     return {
       success: true,
