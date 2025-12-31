@@ -53,6 +53,11 @@ export async function enrollInCourse(
     // Invalidate enrollments cache
     revalidateTag('enrollments', 'max');
 
+    // Invalidate dashboard page to show new enrollment immediately
+    revalidatePath('/student/dashboard');
+    // Invalidate discover page to remove enrolled course from available courses
+    revalidatePath('/student/discover');
+
     return {
       success: true,
       data: { enrollmentId: enrollment._id.toString() },
@@ -268,6 +273,8 @@ export async function markLectureComplete(
 
       // Revalidate the lectures layout to update sidebar
       revalidatePath(`/student/courses/${courseId}/lectures`);
+      // Revalidate dashboard to update progress percentage
+      revalidatePath('/student/dashboard');
     }
 
     return { success: true };
