@@ -1,6 +1,7 @@
 "use server";
 
 import { ZodError } from "zod";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import Course from "@/database/course.model";
 import Lecture from "@/database/lecture.model";
@@ -51,6 +52,8 @@ export async function saveQuiz(instructorId: string, data: SaveQuizInput) {
       },
       { upsert: true, new: true, runValidators: true }
     );
+
+    updateTag('quizzes');
 
     return {
       success: true,
@@ -126,8 +129,11 @@ export async function getQuizByLecture(lectureId: string, instructorId: string) 
   }
 }
 
-// Get quiz by lecture for students (doesn't check instructor ownership)
 export async function getQuizForStudent(lectureId: string) {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('quizzes')
+
   try {
     await dbConnect();
 
@@ -183,6 +189,8 @@ export async function deleteQuiz(lectureId: string, instructorId: string) {
     }
 
     await Quiz.deleteOne({ lectureId });
+
+    updateTag('quizzes');
 
     return {
       success: true,

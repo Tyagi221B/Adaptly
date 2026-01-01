@@ -20,7 +20,19 @@ import { ReviewsList } from "@/components/student/reviews-list";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function StudentCourseDetailPage({
+export default function StudentCourseDetailPage({
+  params,
+}: {
+  params: Promise<{ courseId: string }>;
+}) {
+  return (
+    <Suspense fallback={<CoursePageSkeleton />}>
+      <CourseContent params={params} />
+    </Suspense>
+  );
+}
+
+async function CourseContent({
   params,
 }: {
   params: Promise<{ courseId: string }>;
@@ -264,6 +276,23 @@ export default async function StudentCourseDetailPage({
             </Suspense>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function CoursePageSkeleton() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8 px-4">
+        <Skeleton className="h-10 w-32 mb-6" />
+        <div className="mb-8">
+          <Skeleton className="h-10 w-3/4 mb-2" />
+          <Skeleton className="h-6 w-full mb-4" />
+          <Skeleton className="h-6 w-32" />
+        </div>
+        <Skeleton className="h-40 w-full mb-8" />
+        <Skeleton className="h-60 w-full" />
       </div>
     </div>
   );

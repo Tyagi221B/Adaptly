@@ -3,7 +3,7 @@ import { Mail, Code2, Video } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear = 2026; // Update manually each year
 
   const techStack = [
     "Next.js 16",

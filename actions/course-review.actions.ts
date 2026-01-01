@@ -1,6 +1,7 @@
 "use server";
 
 import { ZodError } from "zod";
+import { updateTag, revalidatePath, cacheLife, cacheTag } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import CourseReview from "@/database/course-review.model";
 import Course from "@/database/course.model";
@@ -64,8 +65,13 @@ export async function createOrUpdateReview(
       }
     );
 
-    // Recalculate course average rating
     await updateCourseRating(courseId);
+
+    updateTag('courses');
+    updateTag('reviews');
+    revalidatePath(`/courses/${courseId}`);
+    revalidatePath('/student/dashboard');
+    revalidatePath('/student/discover');
 
     return {
       success: true,
@@ -98,6 +104,11 @@ export async function getCourseReviews(
     }>
   >
 > {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('reviews')
+  cacheTag('courses')
+
   try {
     await dbConnect();
 
@@ -150,6 +161,10 @@ export async function getMyReview(
     createdAt: Date;
   } | null>
 > {
+  'use cache'
+  cacheLife('seconds')
+  cacheTag('reviews')
+
   try {
     await dbConnect();
 
@@ -202,6 +217,12 @@ export async function deleteReview(
     // Recalculate course rating
     await updateCourseRating(review.courseId.toString());
 
+    updateTag('courses');
+    updateTag('reviews');
+    revalidatePath(`/courses/${review.courseId.toString()}`);
+    revalidatePath('/student/dashboard');
+    revalidatePath('/student/discover');
+
     return { success: true };
   } catch (error) {
     return {
@@ -243,6 +264,11 @@ export async function getCourseRatingStats(
     distribution: { [key: number]: number }; // 1-5 stars count
   }>
 > {
+  'use cache'
+  cacheLife('minutes')
+  cacheTag('reviews')
+  cacheTag('courses')
+
   try {
     await dbConnect();
 

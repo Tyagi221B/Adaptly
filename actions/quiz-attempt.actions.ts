@@ -1,5 +1,6 @@
 "use server";
 
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import dbConnect from "@/lib/mongodb";
 import QuizAttempt from "@/database/quiz-attempt.model";
 import Quiz from "@/database/quiz.model";
@@ -91,6 +92,8 @@ export async function submitQuizAttempt(
       passed,
     });
 
+    updateTag('quiz-attempts');
+
     // Mark lecture as complete if quiz was passed
     if (passed) {
       await markLectureComplete(studentId, courseId, lectureId);
@@ -112,7 +115,6 @@ export async function submitQuizAttempt(
   }
 }
 
-// Get latest quiz attempt for a student
 export async function getLatestQuizAttempt(
   studentId: string,
   quizId: string
@@ -125,6 +127,10 @@ export async function getLatestQuizAttempt(
     attemptedAt: Date;
   } | null>
 > {
+  'use cache'
+  cacheLife('seconds')
+  cacheTag('quiz-attempts')
+
   try {
     await dbConnect();
 

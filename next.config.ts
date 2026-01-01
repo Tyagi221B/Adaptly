@@ -74,6 +74,9 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "6mb", // Allow up to 6MB for image uploads
     },
   },
+
+  /* Cache Components (Next.js 16) - Enables PPR + "use cache" directive */
+  cacheComponents: true,
 };
 
 export default nextConfig;
