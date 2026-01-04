@@ -488,10 +488,21 @@ export async function getPublishedCourses() {
         },
       },
 
-      // Calculate lecture count and extract instructor data
+      // Join with enrollments collection to count enrolled students
+      {
+        $lookup: {
+          from: "enrollments",
+          localField: "_id",
+          foreignField: "courseId",
+          as: "enrollments",
+        },
+      },
+
+      // Calculate lecture count, enrollment count, and extract instructor data
       {
         $addFields: {
           lectureCount: { $size: "$lectures" },
+          enrolledStudentsCount: { $size: "$enrollments" },
           instructorName: { $arrayElemAt: ["$instructor.name", 0] },
         },
       },
@@ -500,6 +511,7 @@ export async function getPublishedCourses() {
       {
         $project: {
           lectures: 0,
+          enrollments: 0,
           instructor: 0,
         },
       },

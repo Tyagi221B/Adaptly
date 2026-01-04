@@ -80,6 +80,7 @@ export async function getMyEnrollments(
       courseInstructorName: string;
       courseAverageRating: number;
       courseTotalReviews: number;
+      courseEnrolledStudentsCount: number;
       enrolledAt: Date;
       totalLectures: number;
       completedLectures: number;
@@ -134,12 +135,23 @@ export async function getMyEnrollments(
         },
       },
 
+      // Join with enrollments collection to count enrolled students
+      {
+        $lookup: {
+          from: "enrollments",
+          localField: "courseId",
+          foreignField: "courseId",
+          as: "courseEnrollments",
+        },
+      },
+
       // Calculate progress metrics
       {
         $addFields: {
           totalLectures: { $size: "$lectures" },
           completedLectures: { $size: "$progress.completedLectures" },
           instructorName: { $arrayElemAt: ["$instructor.name", 0] },
+          enrolledStudentsCount: { $size: "$courseEnrollments" },
         },
       },
 
@@ -171,6 +183,7 @@ export async function getMyEnrollments(
         $project: {
           lectures: 0,
           instructor: 0,
+          courseEnrollments: 0,
         },
       },
 
@@ -189,6 +202,7 @@ export async function getMyEnrollments(
       courseInstructorName: enrollment.instructorName || "Unknown",
       courseAverageRating: enrollment.course.averageRating || 0,
       courseTotalReviews: enrollment.course.totalReviews || 0,
+      courseEnrolledStudentsCount: enrollment.enrolledStudentsCount || 0,
       enrolledAt: enrollment.enrolledAt,
       totalLectures: enrollment.totalLectures,
       completedLectures: enrollment.completedLectures,

@@ -38,6 +38,7 @@ export async function EnrolledCourses() {
               lectureCount: enrollment.totalLectures,
               averageRating: enrollment.courseAverageRating,
               totalReviews: enrollment.courseTotalReviews,
+              enrolledStudentsCount: enrollment.courseEnrolledStudentsCount,
             }}
             variant="enrolled"
             enrollmentData={{
