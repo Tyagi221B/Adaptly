@@ -51,6 +51,9 @@ export default async function QuizPage({
 
   const quiz = quizResult.data;
 
+  // Generate unique key to force QuizTaker remount on retakes
+  const quizKey = crypto.randomUUID();
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto max-w-4xl py-8 px-4">
@@ -69,6 +72,7 @@ export default async function QuizPage({
 
         {/* Quiz Content */}
         <QuizTaker
+          key={quizKey}
           quiz={quiz}
           lectureId={lectureId}
           courseId={courseId}
